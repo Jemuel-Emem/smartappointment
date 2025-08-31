@@ -12,4 +12,14 @@ protected $fillable = ['user_id', 'department_name', 'service_type'];
     {
         return $this->belongsTo(User::class);
     }
+
+      public function staff()
+    {
+        return $this->hasMany(Staff::class);
+    }
+
+    public function appointments()
+    {
+        return $this->hasMany(Appointment::class, 'department_id', 'user_id');
+    }
 }

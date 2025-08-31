@@ -1,8 +1,5 @@
 <div class="max-w-7xl mx-auto mt-8">
     <div class="bg-white rounded-lg overflow-hidden">
-        <div class="text-emerald-600 p-4">
-            <h2 class="text-lg font-bold">My Appointment Status</h2>
-        </div>
 
         <div class="p-6">
             @if (session()->has('message'))
@@ -89,6 +86,13 @@
                     <option value="4">4 - Good</option>
                     <option value="5">5 - Excellent</option>
                 </select>
+            </div>
+
+             <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700">Comment (optional)</label>
+                <textarea wire:model="comment" rows="3"
+                    class="w-full border rounded px-3 py-2 mt-1"
+                    placeholder="Write your feedback here..."></textarea>
             </div>
 
             <div class="flex justify-end space-x-2">

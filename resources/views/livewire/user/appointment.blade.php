@@ -77,6 +77,11 @@
                         <h3 class="text-lg font-semibold text-gray-800">{{ $staff->name }}</h3>
                         <p class="text-gray-600"><span class="font-medium">Speciality:</span> {{ $staff->speciality }}</p>
                         <p class="text-gray-600"><span class="font-medium">Service:</span> {{ $staff->service_type }}</p>
+                       <p class="text-gray-600">
+    <span class="font-medium">Availability:</span>
+    {{ $staff->availability ? 'Available' : 'Not Available' }}
+</p>
+
                         <div class="mt-3 flex items-center justify-between">
                           <div class="flex items-center">
 @php

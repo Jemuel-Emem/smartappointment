@@ -1,61 +1,86 @@
-<div class="p-6 bg-gray-100 min-h-screen">
+<div>
+    <div class="p-6 space-y-6">
 
 
-  <!-- Departments Overview -->
-  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-    <div class="bg-white shadow rounded-lg p-4">
-      <h3 class="text-lg font-semibold">Health Dept</h3>
-      <p class="text-sm text-gray-500">5 services</p>
+    <!-- Top Rated Staff -->
+    <div class="bg-white p-4 rounded shadow">
+        <h2 class="font-semibold mb-2">🏅 Top Rated Staff</h2>
+        <ul>
+            @foreach($topStaff as $staff)
+                <li>{{ $staff->name }} - ⭐ {{ number_format($staff->avg_rating, 1) }}</li>
+            @endforeach
+        </ul>
     </div>
-    <div class="bg-white shadow rounded-lg p-4">
-      <h3 class="text-lg font-semibold">Education Dept</h3>
-      <p class="text-sm text-gray-500">3 services</p>
-    </div>
-    <div class="bg-white shadow rounded-lg p-4">
-      <h3 class="text-lg font-semibold">Public Works</h3>
-      <p class="text-sm text-gray-500">4 services</p>
-    </div>
-    <div class="bg-white shadow rounded-lg p-4">
-      <h3 class="text-lg font-semibold">Social Welfare</h3>
-      <p class="text-sm text-gray-500">6 services</p>
-    </div>
-  </div>
 
-  <!-- Appointment Stats -->
-  <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-    <div class="bg-blue-100 text-blue-800 rounded-lg p-4 shadow">
-      <h4 class="font-bold text-lg">Pending</h4>
-      <p class="text-3xl mt-2">23</p>
+    <!-- High Demand Services -->
+    <div class="bg-white p-4 rounded shadow">
+        <h2 class="font-semibold mb-2">🔥 High Demand Services</h2>
+        <ul>
+            @foreach($highDemandServices as $service)
+                <li>{{ $service->service_type }} - {{ $service->total }} appointments</li>
+            @endforeach
+        </ul>
     </div>
-    <div class="bg-green-100 text-green-800 rounded-lg p-4 shadow">
-      <h4 class="font-bold text-lg">Completed</h4>
-      <p class="text-3xl mt-2">81</p>
+
+    <!-- Appointments Over Time (Line Chart) -->
+    <div class="bg-white p-4 rounded shadow">
+        <h2 class="font-semibold mb-2">📅 Appointments Over Time</h2>
+        <canvas id="appointmentsChart"></canvas>
     </div>
-    <div class="bg-red-100 text-red-800 rounded-lg p-4 shadow">
-      <h4 class="font-bold text-lg">Canceled</h4>
-      <p class="text-3xl mt-2">12</p>
-    </div>
-  </div>
+
+    <!-- Department Satisfaction Leaderboard -->
+    {{-- <div class="bg-white p-4 rounded shadow">
+        <h2 class="font-semibold mb-2">🏆 Department Satisfaction</h2>
+        <ul>
+            @foreach($departmentSatisfaction as $dept)
+                <li>{{ $dept->name }} - ⭐ {{ number_format($dept->avg_rating, 1) }}</li>
+            @endforeach
+        </ul>
+    </div> --}}
+</div>
 
 
-  <!-- Feedback Trends -->
-  <div class="bg-white shadow rounded-lg p-6">
-    <h4 class="text-lg font-bold mb-4">Feedback Summary</h4>
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <div>
-        <p class="text-sm text-gray-600">Overall Satisfaction</p>
-        <div class="w-full bg-gray-200 rounded-full h-4 mt-1">
-          <div class="bg-green-500 h-4 rounded-full" style="width: 78%;"></div>
-        </div>
-        <p class="text-right text-sm mt-1">78%</p>
-      </div>
-      <div>
-        <p class="text-sm text-gray-600">Service Timeliness</p>
-        <div class="w-full bg-gray-200 rounded-full h-4 mt-1">
-          <div class="bg-blue-500 h-4 rounded-full" style="width: 65%;"></div>
-        </div>
-        <p class="text-right text-sm mt-1">65%</p>
-      </div>
-    </div>
-  </div>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const ctx = document.getElementById('appointmentsChart').getContext('2d');
+
+        const chart = new Chart(ctx, {
+            type: 'line', // Change to 'bar' if you want a bar chart
+            data: {
+                labels: @json($appointmentStats->pluck('date')),
+                datasets: [{
+                    label: 'Appointments',
+                    data: @json($appointmentStats->pluck('total')),
+                    fill: true,
+                    borderColor: '#3b82f6',
+                    backgroundColor: 'rgba(59, 130, 246, 0.2)',
+                    tension: 0.3, // smooth curves
+                    pointBackgroundColor: '#1d4ed8',
+                    pointRadius: 5
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { display: true },
+                    tooltip: {
+                        mode: 'index',
+                        intersect: false
+                    }
+                },
+                scales: {
+                    x: {
+                        title: { display: true, text: 'Date' }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        title: { display: true, text: 'Total Appointments' }
+                    }
+                }
+            }
+        });
+    });
+</script>
+
 </div>

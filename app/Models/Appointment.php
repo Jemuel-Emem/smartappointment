@@ -27,5 +27,8 @@ public function staff()
     return $this->belongsTo(Staff::class);
 }
 
-
+ public function department()
+    {
+        return $this->belongsTo(Department::class, 'department_id', 'user_id');
+    }
 }

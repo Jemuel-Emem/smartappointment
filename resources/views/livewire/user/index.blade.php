@@ -14,7 +14,7 @@
 
     <!-- Action Buttons -->
     <div class="flex gap-4">
-        <a href="{{ route('login') }}" class="w-64 text-center px-6 py-3 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-700 transition">
+        <a href="{{ route('user.appointment') }}" class="w-64 text-center px-6 py-3 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-700 transition">
             APPOINT NOW!
         </a>
 

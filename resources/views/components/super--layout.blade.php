@@ -106,7 +106,7 @@
             </div>
             <ul class="space-y-2 font-medium mt-4">
                 <li>
-                    <a href="" class="flex items-center p-2 rounded-lg hover:bg-gray-700">
+                    <a href="{{route('spdashboard')}}" class="flex items-center p-2 rounded-lg hover:bg-gray-700">
                         <i class="text-pink-500 ri-dashboard-fill"></i>
                         <span class="ms-3 text-white">Dashboard</span>
                     </a>
@@ -116,25 +116,11 @@
                        <i class="text-pink-500 ri-home-fill"></i>
                         <span class="ms-3 text-white">Manage Department</span>
                     </a>
-                </li>
 
-                     <li>
-                    <a href="" class="flex items-center p-2 rounded-lg hover:bg-gray-700">
-                        <i class="ri-group-fill text-pink-500"></i>
-                        <span class="ms-3 text-white">Staff Oversight</span>
-                    </a>
-                </li>
-
-                        <li>
-                    <a href="" class="flex items-center p-2 rounded-lg hover:bg-gray-700">
-                      <i class="ri-pie-chart-fill text-pink-500"></i>
-                        <span class="ms-3 text-white">Analytics</span>
-                    </a>
-                </li>
                 <li>
-                    <a href="" class="flex items-center p-2 rounded-lg hover:bg-gray-700">
+                    <a href="{{route('sp.comments')}}" class="flex items-center p-2 rounded-lg hover:bg-gray-700">
                   <i class="ri-notification-3-fill text-pink-500"></i>
-                        <span class="ms-3 text-white">Notifications</span>
+                        <span class="ms-3 text-white">FeedBack/Comments</span>
                     </a>
                 </li>
 

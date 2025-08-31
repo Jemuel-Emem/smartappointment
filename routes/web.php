@@ -60,6 +60,9 @@ Route::prefix('SuperAdmin')->middleware(['auth', SuperAdmin::class])->group(func
         return view('sp.department');
     })->name('sp.department');
 
+        Route::get('/sp.comments', function () {
+        return view('sp.comments');
+    })->name('sp.comments');
 
 });
 

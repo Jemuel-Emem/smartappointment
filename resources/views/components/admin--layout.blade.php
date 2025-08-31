@@ -104,7 +104,7 @@
             </div>
             <ul class="space-y-2 font-medium mt-4">
                 <li>
-                    <a href="" class="flex items-center p-2 rounded-lg hover:bg-gray-700">
+                    <a href="{{route('admindashboard')}}" class="flex items-center p-2 rounded-lg hover:bg-gray-700">
                         <i class="text-pink-500 ri-dashboard-fill"></i>
                         <span class="ms-3 text-white">Dashboard</span>
                     </a>
@@ -116,12 +116,6 @@
                     </a>
                 </li>
 
-                     <li>
-                    <a href="{{route('admin.services')}}" class="flex items-center p-2 rounded-lg hover:bg-gray-700">
-                        <i class="ri-group-fill text-pink-500"></i>
-                        <span class="ms-3 text-white">Manage Services</span>
-                    </a>
-                </li>
 
                         <li>
                     <a href="{{route('admin.appointments')}}" class="flex items-center p-2 rounded-lg hover:bg-gray-700">
@@ -129,12 +123,12 @@
                         <span class="ms-3 text-white">Appointments</span>
                     </a>
                 </li>
-                <li>
+                {{-- <li>
                     <a href="" class="flex items-center p-2 rounded-lg hover:bg-gray-700">
                   <i class="ri-notification-3-fill text-pink-500"></i>
                         <span class="ms-3 text-white">Notifications</span>
                     </a>
-                </li>
+                </li> --}}
 
 
 

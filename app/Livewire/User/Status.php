@@ -17,6 +17,7 @@ class Status extends Component
 
     public $showRatingModal = false;
     public $rating;
+      public $comment;
 
     public function mount()
     {
@@ -58,6 +59,8 @@ class Status extends Component
     public function openRatingModal($id)
     {
         $this->selectedAppointment = Appointment::where('user_id', Auth::id())->findOrFail($id);
+          $this->rating = null;
+        $this->comment = null;
         $this->showRatingModal = true;
     }
 
@@ -71,9 +74,11 @@ public function submitRating()
             ],
             [
                 'rating' => $this->rating,
+                 'comment' => $this->comment,
             ]
         );
-
+   $this->selectedAppointment->rated = true;
+        $this->selectedAppointment->save();
         $this->showRatingModal = false;
         $this->refreshAppointments();
         session()->flash('message', 'Thank you for rating the staff!');

@@ -21,6 +21,7 @@ return new class extends Migration
     $table->string('speciality');
     $table->string('service_type');
     $table->unsignedTinyInteger('rating')->default(0);
+
             $table->timestamps();
 
              $table->foreign('department_id')->references('id')->on('departments')->onDelete('cascade');

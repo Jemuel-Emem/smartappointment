@@ -14,8 +14,9 @@ return new class extends Migration
         Schema::create('staff__ratings', function (Blueprint $table) {
             $table->id();
               $table->unsignedBigInteger('staff_id');
-        $table->unsignedBigInteger('user_id'); // who rated
-        $table->tinyInteger('rating'); // 1–5
+        $table->unsignedBigInteger('user_id');
+        $table->tinyInteger('rating');
+         $table->text('comment')->nullable();
         $table->timestamps();
 
         $table->foreign('staff_id')->references('id')->on('staff')->onDelete('cascade');

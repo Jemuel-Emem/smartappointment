@@ -13,7 +13,8 @@ class Staff extends Model
         'phone_number',
         'speciality',
         'rating',
-        'service_type'
+        'service_type',
+        'availability'
     ];
 
     public function ratings()
@@ -25,5 +26,17 @@ public function getAverageRatingAttribute()
 {
     return $this->ratings()->avg('rating') ?? 0;
 }
+
+ public function department()
+    {
+        return $this->belongsTo(Department::class);
+    }
+
+    public function appointments()
+    {
+        return $this->hasMany(Appointment::class);
+    }
+
+
 
 }

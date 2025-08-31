@@ -10,6 +10,7 @@ class Staff_Rating extends Model
         'staff_id',
         'user_id',
         'rating',
+        'comment'
     ];
 
     public function staff()

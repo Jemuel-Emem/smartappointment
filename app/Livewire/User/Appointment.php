@@ -3,6 +3,8 @@ namespace App\Livewire\User;
 use App\Models\Staff_Rating;
 use App\Models\Appointment as A;
 use App\Models\Department;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\StaffAppointmentNotification;
 use App\Models\Staff;
 use Livewire\Attributes\On;
 use Livewire\Component;
@@ -196,11 +198,11 @@ class Appointment extends Component
         'selectedStaffId' => 'required|exists:staff,id',
     ]);
 
-    // Check for conflict: Is the staff already approved at the same date & time?
+
     $conflict = A::where('staff_id', $this->selectedStaffId)
         ->where('appointment_date', $this->appointment_date)
         ->where('appointment_time', $this->appointment_time)
-        ->where('status', 'approved') // assuming you have a `status` column
+        ->where('status', 'approved')
         ->exists();
 
     if ($conflict) {
@@ -210,7 +212,16 @@ class Appointment extends Component
 
     $department = Department::findOrFail($this->department_id);
 
-    A::create([
+    // A::create([
+    //     'user_id' => auth()->id(),
+    //     'department_id' => $department->user_id,
+    //     'staff_id' => $this->selectedStaffId,
+    //     'purpose_of_appointment' => $this->purpose_of_appointment,
+    //     'appointment_date' => $this->appointment_date,
+    //     'appointment_time' => $this->appointment_time,
+    //     'status' => 'pending',
+
+       $appointment = A::create([
         'user_id' => auth()->id(),
         'department_id' => $department->user_id,
         'staff_id' => $this->selectedStaffId,
@@ -219,6 +230,12 @@ class Appointment extends Component
         'appointment_time' => $this->appointment_time,
         'status' => 'pending',
     ]);
+
+
+  $staff = Staff::find($this->selectedStaffId);
+    if ($staff && $staff->email) {
+        Mail::to($staff->email)->send(new StaffAppointmentNotification($appointment));
+    }
 
     $this->reset([
         'department_id',

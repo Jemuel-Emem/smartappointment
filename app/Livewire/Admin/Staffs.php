@@ -38,6 +38,14 @@ class Staffs extends Component
           $this->service = $staff->service_type;
         $this->showModal = true;
     }
+public function toggleAvailability($id)
+{
+    $staff = Staff::findOrFail($id);
+    $staff->availability = !$staff->availability;
+    $staff->save();
+
+    session()->flash('message', 'Staff availability updated.');
+}
 
     public function saveStaff()
     {
@@ -50,7 +58,7 @@ class Staffs extends Component
         }
 
         if ($this->staffIdBeingEdited) {
-            // Update existing staff
+
             $staff = Staff::findOrFail($this->staffIdBeingEdited);
             $staff->update([
                 'name' => $this->name,

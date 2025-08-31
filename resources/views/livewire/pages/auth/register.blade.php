@@ -15,6 +15,7 @@ new #[Layout('layouts.guest')] class extends Component
     public string $password = '';
      public string $barangay = '';
       public string $language = '';
+        public string $phone_number = '';
     public string $password_confirmation = '';
 
     /**
@@ -26,6 +27,7 @@ new #[Layout('layouts.guest')] class extends Component
             'name' => ['required', 'string', 'max:255'],
              'barangay' => ['required', 'string', 'max:255'],
               'language' => ['required', 'string', 'max:255'],
+                'phone_number' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
             'password' => ['required', 'string', 'confirmed', Rules\Password::defaults()],
         ]);
@@ -50,10 +52,58 @@ new #[Layout('layouts.guest')] class extends Component
         </div>
 
             <div>
-            <x-input-label for="barangay" :value="__('barangay')" />
-            <x-text-input wire:model="barangay" id="barangay" class="block mt-1 w-full" type="text" barangay="barangay" required autofocus autocomplete="barangay" />
-            <x-input-error :messages="$errors->get('barangay')" class="mt-2" />
+            <x-input-label for="phone_number" :value="__('phone_number')" />
+            <x-text-input wire:model="phone_number" id="phone_number" class="block mt-1 w-full" type="text" phone_number="phone_number" required autofocus autocomplete="phone_number" />
+            <x-input-error :messages="$errors->get('phone_number')" class="mt-2" />
         </div>
+
+       <div>
+    <x-input-label for="barangay" :value="__('Barangay')" />
+    <select wire:model="barangay" id="barangay" name="barangay"
+        class="block mt-1 w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+        required>
+        <option value="">-- Select Barangay --</option>
+        <option value="Asinan">Asinan</option>
+        <option value="Baguio">Baguio</option>
+        <option value="Bilabao">Bilabao</option>
+        <option value="Bonotbonot">Bonotbonot</option>
+        <option value="Bugaong">Bugaong</option>
+        <option value="Buenavista (Poblacion)">Buenavista (Poblacion)</option>
+        <option value="Buenos Aires">Buenos Aires</option>
+        <option value="Candagas">Candagas</option>
+        <option value="Candaling">Candaling</option>
+        <option value="Cangawa">Cangawa</option>
+        <option value="Cangmangao">Cangmangao</option>
+        <option value="Cantagay">Cantagay</option>
+        <option value="Cantamuac">Cantamuac</option>
+        <option value="Cantores">Cantores</option>
+        <option value="Cantuba">Cantuba</option>
+        <option value="Catigbian">Catigbian</option>
+        <option value="Cawag">Cawag</option>
+        <option value="Cruz">Cruz</option>
+        <option value="Dait">Dait</option>
+        <option value="Eastern Cabul-an">Eastern Cabul-an</option>
+        <option value="Hunan">Hunan</option>
+        <option value="Lapacan">Lapacan</option>
+        <option value="Lubang">Lubang</option>
+        <option value="Lusong">Lusong</option>
+        <option value="Magkaya">Magkaya</option>
+        <option value="Merryland">Merryland</option>
+        <option value="Nueva Esperanza">Nueva Esperanza</option>
+        <option value="Nueva Montana">Nueva Montana</option>
+        <option value="Overland">Overland</option>
+        <option value="Panghagban">Panghagban</option>
+        <option value="Puting Bato">Puting Bato</option>
+        <option value="Riverside">Riverside</option>
+        <option value="Tanghaligue">Tanghaligue</option>
+        <option value="Taslan">Taslan</option>
+        <option value="Tuboran">Tuboran</option>
+        <option value="Western Cabul-an">Western Cabul-an</option>
+    </select>
+
+    <x-input-error :messages="$errors->get('barangay')" class="mt-2" />
+</div>
+
 
       <div>
     <x-input-label for="language" :value="__('Language')" />

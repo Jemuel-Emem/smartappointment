@@ -23,7 +23,8 @@ class User extends Authenticatable
         'password',
         'is_admin',
         'barangay',
-        'language'
+        'language',
+        'phone_number'
 
     ];
 
@@ -31,6 +32,8 @@ class User extends Authenticatable
     {
         return $this->hasOne(Department::class);
     }
+
+
     /**
      * The attributes that should be hidden for serialization.
      *

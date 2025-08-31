@@ -93,7 +93,7 @@
                     </li>
 
                      <li>
-                        <a href="{{route('user.status')}}" class="block py-2 px-3 text-white uppercase font-bold nav-link">Status</a>
+                        <a href="{{route('user.status')}}" class="block py-2 px-3 text-white uppercase font-bold nav-link">Status/History</a>
                     </li>
 
                     <li>
