@@ -4,6 +4,7 @@ namespace App\Livewire\User;
 use App\Models\Staff_Rating;
 use App\Models\Appointment;
 use App\Models\Staff;
+use Carbon\Carbon;
 use Livewire\Component;
 use Illuminate\Support\Facades\Auth;
 
@@ -44,16 +45,52 @@ class Status extends Component
 
     public function reschedule()
     {
-        if ($this->selectedAppointment) {
-            $this->selectedAppointment->appointment_date = $this->rescheduleDate;
-            $this->selectedAppointment->appointment_time = $this->rescheduleTime;
-            $this->selectedAppointment->status = 'pending';
-            $this->selectedAppointment->save();
+        // if ($this->selectedAppointment) {
+        //     $this->selectedAppointment->appointment_date = $this->rescheduleDate;
+        //     $this->selectedAppointment->appointment_time = $this->rescheduleTime;
+        //     $this->selectedAppointment->status = 'pending';
+        //     $this->selectedAppointment->save();
+        // }
+
+        // $this->showRescheduleModal = false;
+        // $this->refreshAppointments();
+        // session()->flash('message', 'Appointment rescheduled successfully.');
+
+         if ($this->selectedAppointment) {
+        // Combine into full datetime
+        $slot = Carbon::createFromFormat(
+            'Y-m-d H:i',
+            $this->rescheduleDate . ' ' . $this->rescheduleTime
+        );
+
+        // Prevent rescheduling to the past
+        if ($slot->lte(Carbon::now())) {
+            session()->flash('error', 'You cannot reschedule to a past time.');
+            return;
         }
 
-        $this->showRescheduleModal = false;
-        $this->refreshAppointments();
-        session()->flash('message', 'Appointment rescheduled successfully.');
+        // Prevent conflicts with already approved appointments
+        $conflict = \App\Models\Appointment::where('staff_id', $this->selectedAppointment->staff_id)
+            ->where('appointment_date', $this->rescheduleDate)
+            ->where('appointment_time', $this->rescheduleTime)
+            ->where('status', 'approved')
+            ->exists();
+
+        if ($conflict) {
+            session()->flash('error', 'Sorry, this time slot is already booked.');
+            return;
+        }
+
+        // Save new schedule
+        $this->selectedAppointment->appointment_date = $this->rescheduleDate;
+        $this->selectedAppointment->appointment_time = $this->rescheduleTime;
+        $this->selectedAppointment->status = 'pending';
+        $this->selectedAppointment->save();
+    }
+
+    $this->showRescheduleModal = false;
+    $this->refreshAppointments();
+    session()->flash('message', 'Appointment rescheduled successfully.');
     }
 
     public function openRatingModal($id)

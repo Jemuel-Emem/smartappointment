@@ -1,12 +1,16 @@
 <?php
 namespace App\Livewire\User;
+
 use App\Models\Staff_Rating;
 use App\Models\Appointment as A;
 use App\Models\Department;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\StaffAppointmentNotification;
+
 use App\Models\Staff;
 use Livewire\Attributes\On;
+use Carbon\Carbon;
+
 use Livewire\Component;
 
 class Appointment extends Component
@@ -157,40 +161,74 @@ class Appointment extends Component
         $this->selectedStaffId = $staffId;
     }
 
-    // public function submit()
-    // {
-    //     $this->validate([
-    //         'purpose_of_appointment' => 'required|string|max:255',
-    //         'appointment_date' => 'required|date|after_or_equal:today',
-    //         'appointment_time' => 'required|date_format:H:i',
-    //         'selectedStaffId' => 'required|exists:staff,id',
-    //     ]);
 
-    //     $department = Department::findOrFail($this->department_id);
+//     public function submit()
+// {
+//     $this->validate([
+//         'purpose_of_appointment' => 'required|string|max:255',
+//         'appointment_date' => 'required|date|after_or_equal:today',
+//         'appointment_time' => 'required|date_format:H:i',
+//         'selectedStaffId' => 'required|exists:staff,id',
+//     ]);
 
-    //     A::create([
-    //         'user_id' => auth()->id(),
-    //         'department_id' => $department->user_id,
-    //         'staff_id' => $this->selectedStaffId,
-    //         'purpose_of_appointment' => $this->purpose_of_appointment,
-    //         'appointment_date' => $this->appointment_date,
-    //         'appointment_time' => $this->appointment_time,
-    //     ]);
 
-    //     $this->reset([
-    //         'department_id',
-    //         'purpose_of_appointment',
-    //         'schedule',
-    //         'selectedStaffId',
-    //         'showStaffList',
-    //         'suggestedStaff'
-    //     ]);
+//     $conflict = A::where('staff_id', $this->selectedStaffId)
+//         ->where('appointment_date', $this->appointment_date)
+//         ->where('appointment_time', $this->appointment_time)
+//         ->where('status', 'approved')
+//         ->exists();
 
-    //     session()->flash('success', 'Appointment submitted successfully!');
-    // }
+//     if ($conflict) {
+//         session()->flash('error', 'Sorry, this time slot is already booked ');
+//         return;
+//     }
 
-    public function submit()
+//     $department = Department::findOrFail($this->department_id);
+
+//     // A::create([
+//     //     'user_id' => auth()->id(),
+//     //     'department_id' => $department->user_id,
+//     //     'staff_id' => $this->selectedStaffId,
+//     //     'purpose_of_appointment' => $this->purpose_of_appointment,
+//     //     'appointment_date' => $this->appointment_date,
+//     //     'appointment_time' => $this->appointment_time,
+//     //     'status' => 'pending',
+
+//        $appointment = A::create([
+//         'user_id' => auth()->id(),
+//         'department_id' => $department->user_id,
+//         'staff_id' => $this->selectedStaffId,
+//         'purpose_of_appointment' => $this->purpose_of_appointment,
+//         'appointment_date' => $this->appointment_date,
+//         'appointment_time' => $this->appointment_time,
+//         'status' => 'pending',
+//     ]);
+
+
+//   $staff = Staff::find($this->selectedStaffId);
+//     if ($staff && $staff->email) {
+//         Mail::to($staff->email)->send(new StaffAppointmentNotification($appointment));
+//     }
+
+//     $this->reset([
+//         'department_id',
+//         'purpose_of_appointment',
+//         'schedule',
+//         'selectedStaffId',
+//         'showStaffList',
+//         'suggestedStaff'
+//     ]);
+
+//     session()->flash('success', 'Appointment submitted successfully! Waiting for approval.');
+// }
+
+
+
+
+public function submit()
 {
+
+
     $this->validate([
         'purpose_of_appointment' => 'required|string|max:255',
         'appointment_date' => 'required|date|after_or_equal:today',
@@ -198,7 +236,20 @@ class Appointment extends Component
         'selectedStaffId' => 'required|exists:staff,id',
     ]);
 
+$slot = Carbon::createFromFormat('Y-m-d H:i', $this->appointment_date . ' ' . $this->appointment_time);
 
+if ($slot->lte(Carbon::now())) {
+    session()->flash('error', 'You cannot book an appointment in the past. Please choose a future time.');
+    return;
+}
+
+    // Prevent booking in the past
+    if ($slot->lte(Carbon::now())) {
+        session()->flash('error', 'You cannot book an appointment in the past. Please choose a future time.');
+        return;
+    }
+
+    // Check conflict
     $conflict = A::where('staff_id', $this->selectedStaffId)
         ->where('appointment_date', $this->appointment_date)
         ->where('appointment_time', $this->appointment_time)
@@ -206,22 +257,13 @@ class Appointment extends Component
         ->exists();
 
     if ($conflict) {
-        session()->flash('error', 'Sorry, this time slot is already booked ');
+        session()->flash('error', 'Sorry, this time slot is already booked.');
         return;
     }
 
     $department = Department::findOrFail($this->department_id);
 
-    // A::create([
-    //     'user_id' => auth()->id(),
-    //     'department_id' => $department->user_id,
-    //     'staff_id' => $this->selectedStaffId,
-    //     'purpose_of_appointment' => $this->purpose_of_appointment,
-    //     'appointment_date' => $this->appointment_date,
-    //     'appointment_time' => $this->appointment_time,
-    //     'status' => 'pending',
-
-       $appointment = A::create([
+    $appointment = A::create([
         'user_id' => auth()->id(),
         'department_id' => $department->user_id,
         'staff_id' => $this->selectedStaffId,
@@ -231,8 +273,7 @@ class Appointment extends Component
         'status' => 'pending',
     ]);
 
-
-  $staff = Staff::find($this->selectedStaffId);
+    $staff = Staff::find($this->selectedStaffId);
     if ($staff && $staff->email) {
         Mail::to($staff->email)->send(new StaffAppointmentNotification($appointment));
     }

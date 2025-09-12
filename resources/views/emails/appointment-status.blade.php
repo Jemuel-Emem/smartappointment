@@ -11,7 +11,10 @@
     <p>Your appointment with <strong>{{ $appointment->staff->name }}</strong>
     on <strong>{{ $appointment->appointment_date }} at {{ $appointment->appointment_time }}</strong>
     has been <strong>{{ $statusMessage }}</strong>.</p>
-
+@if($requirementsList)
+    <p><strong>Requirements:</strong></p>
+    <pre>{{ $requirementsList }}</pre>
+@endif
     <p>Thank you,<br> {{ config('SMART APPOINTMENT') }}</p>
 </body>
 </html>

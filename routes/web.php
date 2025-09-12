@@ -47,6 +47,10 @@ Route::prefix('admin')->middleware(['auth', admin::class])->group(function () {
         return view('admin.appointments');
     })->name('admin.appointments');
 
+          Route::get('/admin.requirements', function () {
+        return view('admin.requirements');
+    })->name('admin.requirements');
+
 
 });
 

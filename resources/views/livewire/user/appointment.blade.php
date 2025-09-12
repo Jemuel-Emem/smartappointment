@@ -61,7 +61,7 @@
         </div>
     </div>
 
-    {{-- Suggested Staff List --}}
+
     @if($showStaffList)
         <div class="mb-6 bg-blue-50 p-4 rounded-lg">
             <h3 class="font-semibold text-blue-800 mb-3">{{ $translations[$language]['recommended'] }}</h3>
@@ -129,17 +129,33 @@
     <select wire:model="appointment_time" class="w-full border border-gray-300 rounded-lg px-4 py-2">
     <option value="">{{ $translations[$language]['select_time'] }}</option>
 
+  @php
+    use Carbon\Carbon;
+
+    $times = [
+        '08:00','08:30', '09:00', '09:30', '10:00', '10:30', '11:00',
+        '13:00', '13:30', '14:00', '14:30', '15:00', '15:30',
+        '16:00', '16:30', '17:00'
+    ];
+
+    $now = Carbon::now();
+@endphp
+
+@foreach ($times as $time)
     @php
-        $times = [
-            '08:30', '09:00', '09:30', '10:00', '10:30', '11:00',
-            '13:00', '13:30', '14:00', '14:30', '15:00', '15:30',
-            '16:00', '16:30', '17:00'
-        ];
+        // Combine today's date with the time slot
+        $timeCarbon = Carbon::createFromFormat('Y-m-d H:i', $now->toDateString() . ' ' . $time);
+
+        // Disable only if appointment_date is today and time is in the past
+        $isDisabled = ($appointment_date === $now->toDateString()) && $timeCarbon->lessThan($now);
     @endphp
 
-    @foreach ($times as $time)
-        <option value="{{ $time }}">{{ date('g:i A', strtotime($time)) }}</option>
-    @endforeach
+<option value="{{ $time }}">
+    {{ \Carbon\Carbon::createFromFormat('H:i', $time)->format('g:i A') }}
+</option>
+
+@endforeach
+
 </select>
 
         @error('appointment_time') <p class="text-red-500 text-sm mt-1">{{ $message }}</p> @enderror

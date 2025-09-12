@@ -1,6 +1,6 @@
 <?php
 namespace App\Livewire\Admin;
-
+use App\Models\Requirement;
 use App\Models\Department;
 use App\Models\Staff;
 use Illuminate\Support\Facades\Auth;
@@ -8,7 +8,7 @@ use Livewire\Component;
 
 class Staffs extends Component
 {
-    public $name, $address, $phone_number, $speciality, $service;
+    public $name, $address, $phone_number, $speciality, $service, $requirement;
     public $showModal = false;
     public $staffIdBeingEdited = null;
 
@@ -78,6 +78,22 @@ public function toggleAvailability($id)
                 'speciality' => $this->speciality,
                 'service_type' => $this->service,
             ]);
+
+             $departmentId = \App\Models\Department::where('user_id', auth()->id())->value('id');
+
+        $this->validate([
+            'name' => 'required|string|max:255',
+            'service' => 'required|string|max:255',
+        ]);
+
+        Requirement::updateOrCreate(
+
+            [
+                'department_id' => $departmentId,
+                'name' => $this->requirement,
+                'service' => $this->service,
+            ]
+        );
             session()->flash('message', 'Staff added successfully.');
         }
 

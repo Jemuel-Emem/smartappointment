@@ -26,6 +26,7 @@
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created</th>
+                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
                 </tr>
             </thead>
             <tbody class="bg-white divide-y divide-gray-200">
@@ -35,6 +36,10 @@
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{{ $dept->service_type }}</td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{{ $dept->user->email ?? '-' }}</td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $dept->created_at->format('M d, Y') }}</td>
+                          <td class="px-6 py-4 whitespace-nowrap  text-sm font-medium">
+                <button wire:click="editDepartment({{ $dept->id }})" class="text-indigo-600 hover:text-indigo-900 mr-3">Edit</button>
+                <button wire:click="deleteDepartment({{ $dept->id }})" class="text-red-600 hover:text-red-900">Delete</button>
+            </td>
                     </tr>
                 @empty
                     <tr>

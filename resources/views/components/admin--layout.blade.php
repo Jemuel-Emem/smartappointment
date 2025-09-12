@@ -123,12 +123,13 @@
                         <span class="ms-3 text-white">Appointments</span>
                     </a>
                 </li>
-                {{-- <li>
-                    <a href="" class="flex items-center p-2 rounded-lg hover:bg-gray-700">
-                  <i class="ri-notification-3-fill text-pink-500"></i>
-                        <span class="ms-3 text-white">Notifications</span>
+                <li>
+                    <a href="{{route('admin.requirements')}}" class="flex items-center p-2 rounded-lg hover:bg-gray-700">
+                        <i class="ri-folder-fill text-pink-500"></i>
+
+                        <span class="ms-3 text-white">Manage Requirements</span>
                     </a>
-                </li> --}}
+                </li>
 
 
 

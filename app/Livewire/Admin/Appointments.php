@@ -1,9 +1,11 @@
 <?php
 
 namespace App\Livewire\Admin;
+use App\Models\Requirement;
 use App\Models\Department;
 use App\Models\Appointment;
 use App\Models\Staff;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\AppointmentStatusMail;
 use Livewire\Component;
@@ -45,6 +47,36 @@ public function saveReschedule()
 
   $appointment = Appointment::find($this->rescheduleAppointmentId);
 
+    if (!$appointment) {
+        session()->flash('error', 'Appointment not found.');
+        return;
+    }
+
+    // Combine into full datetime
+    $slot = Carbon::createFromFormat(
+        'Y-m-d H:i',
+        $this->new_date . ' ' . $this->new_time
+    );
+
+
+    if ($slot->lte(Carbon::now())) {
+        session()->flash('error', 'You cannot reschedule to a past time.');
+        return;
+    }
+
+
+    $conflict = Appointment::where('staff_id', $appointment->staff_id)
+        ->where('appointment_date', $this->new_date)
+        ->where('appointment_time', $this->new_time)
+        ->where('status', 'approved')
+        ->where('id', '!=', $appointment->id)
+        ->exists();
+
+    if ($conflict) {
+        session()->flash('error', 'Sorry, this time slot is already booked.');
+        return;
+    }
+
     $appointment->update([
         'appointment_date' => $this->new_date,
         'appointment_time' => $this->new_time,
@@ -78,23 +110,87 @@ public function complete($id)
 }
 
 
-    public function approve($id)
-    {
-      $appointment = Appointment::find($id);
+    // public function approve($id)
+    // {
+    //   $appointment = Appointment::find($id);
+    // $appointment->update(['status' => 'approved']);
+
+
+    // Mail::to($appointment->user->email)->send(
+    //     new AppointmentStatusMail($appointment, 'approved')
+    // );
+
+    //   $this->sendSMS(
+    //         $appointment->user->phone_number,
+    //         "Your appointment on {$appointment->appointment_date} at {$appointment->appointment_time} has been APPROVED."
+    //     );
+
+    //     $this->refreshAppointments();
+    // }
+
+
+//     public function approve($id)
+// {
+//      $appointment = Appointment::find($id);
+//      $appointment->update(['status' => 'approved']);
+
+
+//     $requirements = Requirement::where('department_id', $appointment->department->id)
+//         ->pluck('name')
+//         ->toArray();
+
+
+//     $requirementsList = !empty($requirements)
+//         ? "\nRequirements:\n- " . implode("\n- ", $requirements)
+//         : "\n(No additional requirements for this appointment.)";
+
+//         dd($requirementsList);
+
+
+//     Mail::to($appointment->user->email)->send(
+//         new AppointmentStatusMail($appointment, 'approved', $requirementsList) // <-- pass requirements
+//     );
+
+
+//     $this->sendSMS(
+//         $appointment->user->phone_number,
+//         "Your appointment on {$appointment->appointment_date} at {$appointment->appointment_time} has been APPROVED." .
+//         $requirementsList
+//     );
+
+//     $this->refreshAppointments();
+// }
+
+
+public function approve($id)
+{
+    $appointment = Appointment::with('staff')->find($id);
     $appointment->update(['status' => 'approved']);
+
+$requirements = Requirement::where('department_id', $appointment->staff->department_id)
+    ->where('service', $appointment->staff->service_type)
+    ->pluck('name')
+    ->toArray();
+
+
+    $requirementsList = !empty($requirements)
+        ? "\nRequirements:\n- " . implode("\n- ", $requirements)
+        : "\n(No additional requirements for this appointment.)";
 
 
     Mail::to($appointment->user->email)->send(
-        new AppointmentStatusMail($appointment, 'approved')
+        new AppointmentStatusMail($appointment, 'approved', $requirementsList)
     );
 
-      $this->sendSMS(
-            $appointment->user->phone_number,
-            "Your appointment on {$appointment->appointment_date} at {$appointment->appointment_time} has been APPROVED."
-        );
 
-        $this->refreshAppointments();
-    }
+    $this->sendSMS(
+        $appointment->user->phone_number,
+        "Your appointment on {$appointment->appointment_date} at {$appointment->appointment_time} has been APPROVED." .
+        $requirementsList
+    );
+
+    $this->refreshAppointments();
+}
 
     public function decline($id)
     {
@@ -129,7 +225,7 @@ public function complete($id)
         $ch = curl_init();
 
         $parameters = [
-            'apikey' => '046125f45f4f187e838905df98273c4e', // replace with your Semaphore API key
+            'apikey' => '046125f45f4f187e838905df98273c4e',
             'number' => $phoneNumber,
             'message' => $message,
             'sendername' => 'KaisFrozen'

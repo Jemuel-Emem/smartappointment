@@ -109,6 +109,12 @@
                     @error('speciality') <p class="text-red-500 text-sm">{{ $message }}</p> @enderror
                 </div>
 
+                    <div class="mb-3">
+                    <label class="block text-sm font-medium">Requirement Name</label>
+                    <input type="text" wire:model="requirement" class="w-full border rounded p-2">
+                    @error('requirement') <p class="text-red-500 text-sm">{{ $message }}</p> @enderror
+                </div>
+
                 <div class="flex justify-end">
                     <button wire:click="$set('showModal', false)" class="px-4 py-2 border rounded mr-2">Cancel</button>
                     <button wire:click="saveStaff" class="px-4 py-2 bg-blue-500 text-white rounded">Save</button>
