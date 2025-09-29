@@ -19,9 +19,10 @@ class Status extends Component
     public $showRatingModal = false;
     public $rating;
       public $comment;
-
+   public $language;
     public function mount()
     {
+          $this->language = Auth::user()->language ?? 'English';
         $this->refreshAppointments();
     }
 
@@ -132,6 +133,8 @@ public function submitRating()
 
     public function render()
     {
-        return view('livewire.user.status');
+        return view('livewire.user.status', [
+            'language' => $this->language,
+        ]);
     }
 }

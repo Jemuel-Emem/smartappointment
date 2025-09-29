@@ -2,27 +2,35 @@
 
 namespace App\Livewire\Admin;
 use App\Models\Requirement;
+use App\Models\AppointmentLimit;
 use App\Models\Department;
 use App\Models\Appointment;
 use App\Models\Staff;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\AppointmentStatusMail;
+
 use Livewire\Component;
 
 class Appointments extends Component
 {
+    public $activeTab = 'pending';
+
     public $appointments;
 public $showRescheduleModal = false;
 public $rescheduleAppointmentId;
 public $new_date;
 public $new_time;
+public $department_id, $limit;
+
 
 public function mount()
 {
     $appointments = Appointment::with(['user', 'staff'])
         ->where('department_id', auth()->id())
         ->get();
+
+    $this->limit = AppointmentLimit::where('user_id', auth()->id())->value('limit') ?? 0;
 
     $this->appointments = $appointments;
 }
@@ -38,6 +46,15 @@ public function openReschedule($id)
     $this->showRescheduleModal = true;
 }
 
+public function saveLimit()
+{
+    AppointmentLimit::updateOrCreate(
+        ['user_id' => auth()->id()], // match by logged-in admin
+        ['limit' => $this->limit]
+    );
+
+    session()->flash('success', 'Limit updated successfully.');
+}
 public function saveReschedule()
 {
     $this->validate([
@@ -93,10 +110,18 @@ public function saveReschedule()
             "Your appointment has been RESCHEDULED to {$this->new_date} at {$this->new_time}."
         );
 
+         if ($appointment->staff && $appointment->staff->phone_number) {
+        $this->sendSMS(
+            $appointment->staff->phone_number,
+            "Appointment with {$appointment->user->name} has been RESCHEDULED to {$this->new_date} at {$this->new_time}."
+        );
+    }
+
     $this->showRescheduleModal = false;
     $this->rescheduleAppointmentId = null;
     $this->new_date = null;
     $this->new_time = null;
+
 
     $this->refreshAppointments();
 
@@ -189,6 +214,12 @@ $requirements = Requirement::where('department_id', $appointment->staff->departm
         $requirementsList
     );
 
+     if ($appointment->staff && $appointment->staff->phone_number) {
+        $this->sendSMS(
+            $appointment->staff->phone_number,
+            "New approved appointment: {$appointment->user->name} on {$appointment->appointment_date} at {$appointment->appointment_time}."
+        );
+    }
     $this->refreshAppointments();
 }
 
@@ -206,6 +237,13 @@ $requirements = Requirement::where('department_id', $appointment->staff->departm
             $appointment->user->phone_number,
             "We’re sorry, but your appointment on {$appointment->appointment_date} at {$appointment->appointment_time} has been DECLINED."
         );
+
+          if ($appointment->staff && $appointment->staff->phone_number) {
+        $this->sendSMS(
+            $appointment->staff->phone_number,
+            "Appointment with {$appointment->user->name} on {$appointment->appointment_date} at {$appointment->appointment_time} has been DECLINED."
+        );
+    }
         $this->refreshAppointments();
     }
 
@@ -243,6 +281,7 @@ $requirements = Requirement::where('department_id', $appointment->staff->departm
     }
     public function render()
     {
-        return view('livewire.admin.appointments');
+        return view('livewire.admin.appointments',
+    ['currentLimit' => $this->limit]);
     }
 }

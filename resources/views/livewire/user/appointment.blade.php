@@ -64,6 +64,15 @@
 
     @if($showStaffList)
         <div class="mb-6 bg-blue-50 p-4 rounded-lg">
+
+    @if(!is_null($remainingSlots))
+    <div class="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+        <p class="text-gray-700 font-semibold">
+            {{ $translations[$language]['available_slots'] ?? 'Available Slots:' }}
+            <span class="text-blue-600">{{ $remainingSlots }}</span>
+        </p>
+    </div>
+@endif
             <h3 class="font-semibold text-blue-800 mb-3">{{ $translations[$language]['recommended'] }}</h3>
 
             @error('selectedStaffId')
@@ -80,6 +89,8 @@
                        <p class="text-gray-600">
     <span class="font-medium">Availability:</span>
     {{ $staff->availability ? 'Available' : 'Not Available' }}
+
+
 </p>
 
                         <div class="mt-3 flex items-center justify-between">
@@ -143,10 +154,10 @@
 
 @foreach ($times as $time)
     @php
-        // Combine today's date with the time slot
+
         $timeCarbon = Carbon::createFromFormat('Y-m-d H:i', $now->toDateString() . ' ' . $time);
 
-        // Disable only if appointment_date is today and time is in the past
+
         $isDisabled = ($appointment_date === $now->toDateString()) && $timeCarbon->lessThan($now);
     @endphp
 

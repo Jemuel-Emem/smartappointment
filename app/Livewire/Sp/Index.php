@@ -18,7 +18,7 @@ class Index extends Component
 
     public function mount()
     {
-        // Top-rated staff (average rating)
+
         $this->topStaff = Staff::select('staff.id', 'staff.name', DB::raw('AVG(staff__ratings.rating) as avg_rating'))
             ->join('staff__ratings', 'staff.id', '=', 'staff__ratings.staff_id')
             ->groupBy('staff.id', 'staff.name')
@@ -26,7 +26,6 @@ class Index extends Component
             ->take(5)
             ->get();
 
-        // High demand services (count of appointments per service_type)
         $this->highDemandServices = Staff::select('staff.service_type', DB::raw('COUNT(appointments.id) as total'))
             ->join('appointments', 'staff.id', '=', 'appointments.staff_id')
             ->groupBy('staff.service_type')
@@ -34,7 +33,7 @@ class Index extends Component
             ->take(5)
             ->get();
 
-        // Appointment stats (count grouped by day)
+
         $this->appointmentStats = Appointment::select(
                 DB::raw('DATE(appointment_date) as date'),
                 DB::raw('COUNT(*) as total')
@@ -43,7 +42,6 @@ class Index extends Component
             ->orderBy('date', 'asc')
             ->get();
 
-        // Department satisfaction (average rating per department)
         $this->departmentSatisfaction = Department::select('departments.department_name', DB::raw('AVG(staff__ratings.rating) as avg_rating'))
             ->join('staff', 'departments.id', '=', 'staff.department_id')
             ->join('staff__ratings', 'staff.id', '=', 'staff__ratings.staff_id')

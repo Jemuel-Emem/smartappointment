@@ -5,6 +5,8 @@ use App\Models\Staff_Rating;
 use App\Models\Appointment as A;
 use App\Models\Department;
 use Illuminate\Support\Facades\Mail;
+
+use App\Models\AppointmentLimit;
 use App\Mail\StaffAppointmentNotification;
 
 use App\Models\Staff;
@@ -24,6 +26,7 @@ class Appointment extends Component
     public $selectedStaffId;
     public $appointment_date;
     public $appointment_time;
+    public $availableSlots = [];
 
     public $language = 'en'; // default language
 
@@ -70,6 +73,42 @@ class Appointment extends Component
             'submit' => 'Isumite ang Appointment',
         ],
     ];
+    public function updatedAppointmentDate($value)
+{
+    $this->loadAvailableSlots();
+}
+
+
+
+public $remainingSlots;
+public function loadAvailableSlots()
+{
+    if (!$this->department_id || !$this->appointment_date) {
+        $this->remainingSlots = null;
+        return;
+    }
+
+    $department = Department::find($this->department_id);
+    if (!$department) {
+        $this->remainingSlots = null;
+        return;
+    }
+
+    $adminId = $department->user_id; // admin who owns this department
+
+    $limitRecord = AppointmentLimit::where('user_id', $adminId)->first();
+    $limit = $limitRecord ? $limitRecord->limit : 0;
+
+    $count = A::where('department_id', $adminId)
+        ->whereDate('appointment_date', $this->appointment_date)
+        ->count();
+
+
+
+    $this->remainingSlots = max($limit - $count, 0);
+}
+
+
     public function updatedPurposeOfAppointment($value)
     {
         // Show staff list if purpose is not empty
@@ -88,6 +127,8 @@ class Appointment extends Component
         if (!empty($this->purpose_of_appointment)) {
             $this->showSuggestedStaff();
         }
+
+        $this->loadAvailableSlots();
     }
     public function setAppointmentDate($date)
     {
@@ -258,6 +299,33 @@ if ($slot->lte(Carbon::now())) {
 
     if ($conflict) {
         session()->flash('error', 'Sorry, this time slot is already booked.');
+        return;
+    }
+
+      $department = Department::findOrFail($this->department_id);
+    $adminId = $department->user_id; // the admin that owns this department
+
+    // 🔹 Get appointment limit set by this admin
+    $limitRecord = AppointmentLimit::where('user_id', $adminId)->first();
+
+    if ($limitRecord) {
+        $appointmentsCount = A::where('department_id', $adminId)
+            ->whereDate('appointment_date', $this->appointment_date)
+            ->count();
+
+        if ($appointmentsCount >= $limitRecord->limit) {
+            session()->flash('error', 'This department has reached its appointment limit for the day.');
+            return;
+        }
+    }
+
+
+    $appointmentsCount =A::where('department_id', $this->department_id)
+        ->whereDate('appointment_date', $this->appointment_date)
+        ->count();
+
+    if ($appointmentsCount >= $limitRecord->limit) {
+        session()->flash('error', 'This department has reached its appointment limit for the day.');
         return;
     }
 
