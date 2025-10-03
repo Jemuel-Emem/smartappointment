@@ -28,13 +28,13 @@ class Appointment extends Component
     public $appointment_time;
     public $availableSlots = [];
 
-    public $language = 'en'; // default language
+    public $language = 'en';
 
     protected $listeners = ['appointmentDateSelected' => 'setAppointmentDate'];
 
     public $translations = [
         'en' => [
-            'book_title' => 'Book an Appointment',
+            'book_title' => 'Appointment',
             'select_department' => 'Select Department',
             'choose_department' => '-- Choose Department --',
             'purpose_label' => 'Purpose of Appointment',
@@ -60,7 +60,7 @@ class Appointment extends Component
             'submit' => 'Isumite ang Appointment',
         ],
         'bs' => [
-            'book_title' => 'Mag-book og Appointment',
+            'book_title' => 'Appointment',
             'select_department' => 'Pili ug Departamento',
             'choose_department' => '-- Pili-a ang Departamento --',
             'purpose_label' => 'Tumong sa Appointment',
@@ -73,12 +73,25 @@ class Appointment extends Component
             'submit' => 'Isumite ang Appointment',
         ],
     ];
+
+
     public function updatedAppointmentDate($value)
 {
     $this->loadAvailableSlots();
 }
 
-
+ private function normalizeLang($lang): string
+    {
+        $map = [
+            'english' => 'en',
+            'tagalog' => 'tl',
+            'bisaya'  => 'bs',
+            'en'      => 'en',
+            'tl'      => 'tl',
+            'bs'      => 'bs',
+        ];
+        return $map[strtolower($lang ?? 'en')] ?? 'en';
+    }
 
 public $remainingSlots;
 public function loadAvailableSlots()
@@ -94,8 +107,7 @@ public function loadAvailableSlots()
         return;
     }
 
-    $adminId = $department->user_id; // admin who owns this department
-
+    $adminId = $department->user_id;
     $limitRecord = AppointmentLimit::where('user_id', $adminId)->first();
     $limit = $limitRecord ? $limitRecord->limit : 0;
 
@@ -111,7 +123,7 @@ public function loadAvailableSlots()
 
     public function updatedPurposeOfAppointment($value)
     {
-        // Show staff list if purpose is not empty
+
         if (!empty($value)) {
             $this->showSuggestedStaff();
         } else {
@@ -123,7 +135,7 @@ public function loadAvailableSlots()
 
     public function updatedDepartmentId($value)
     {
-        // If purpose is not empty and department changes, update staff list
+
         if (!empty($this->purpose_of_appointment)) {
             $this->showSuggestedStaff();
         }
@@ -148,10 +160,20 @@ public function loadAvailableSlots()
     }
 }
 
+public function mount()
+{
+    $this->departments = Department::all();
 
-    public function mount()
+ $user = auth()->user();
+        $this->language = $this->normalizeLang($user->language ?? 'en');
+}
+
+ public function updatedLanguage($value)
     {
-        $this->departments = Department::all();
+        $this->language = $this->normalizeLang($value);
+        $user = auth()->user();
+        $user->language = $value;
+        $user->save();
     }
 
     public function showSuggestedStaff()
@@ -161,7 +183,8 @@ public function loadAvailableSlots()
         $this->selectedStaffId = null;
 
         if (empty($this->purpose_of_appointment)) {
-            session()->flash('error', 'Please enter purpose to get suggestions.');
+
+              flash()->error('Please enter purpose to get suggestions.');
             return;
         }
 
@@ -280,17 +303,20 @@ public function submit()
 $slot = Carbon::createFromFormat('Y-m-d H:i', $this->appointment_date . ' ' . $this->appointment_time);
 
 if ($slot->lte(Carbon::now())) {
-    session()->flash('error', 'You cannot book an appointment in the past. Please choose a future time.');
+
+flash()->error('You cannot book an appointment in the past. Please choose a future time.');
+
     return;
 }
 
-    // Prevent booking in the past
+
     if ($slot->lte(Carbon::now())) {
-        session()->flash('error', 'You cannot book an appointment in the past. Please choose a future time.');
+
+        flash()->error('You cannot book an appointment in the past. Please choose a future time.');
         return;
     }
 
-    // Check conflict
+
     $conflict = A::where('staff_id', $this->selectedStaffId)
         ->where('appointment_date', $this->appointment_date)
         ->where('appointment_time', $this->appointment_time)
@@ -298,14 +324,14 @@ if ($slot->lte(Carbon::now())) {
         ->exists();
 
     if ($conflict) {
-        session()->flash('error', 'Sorry, this time slot is already booked.');
+
+          flash()->error('Sorry, this time slot is already booked.');
         return;
     }
 
       $department = Department::findOrFail($this->department_id);
-    $adminId = $department->user_id; // the admin that owns this department
+    $adminId = $department->user_id;
 
-    // 🔹 Get appointment limit set by this admin
     $limitRecord = AppointmentLimit::where('user_id', $adminId)->first();
 
     if ($limitRecord) {
@@ -314,7 +340,8 @@ if ($slot->lte(Carbon::now())) {
             ->count();
 
         if ($appointmentsCount >= $limitRecord->limit) {
-            session()->flash('error', 'This department has reached its appointment limit for the day.');
+
+                 flash()->error('This department has reached its appointment limit for the day.');
             return;
         }
     }
@@ -325,7 +352,8 @@ if ($slot->lte(Carbon::now())) {
         ->count();
 
     if ($appointmentsCount >= $limitRecord->limit) {
-        session()->flash('error', 'This department has reached its appointment limit for the day.');
+
+          flash()->error('This department has reached its appointment limit for the day.');
         return;
     }
 
@@ -355,12 +383,16 @@ if ($slot->lte(Carbon::now())) {
         'suggestedStaff'
     ]);
 
-    session()->flash('success', 'Appointment submitted successfully! Waiting for approval.');
+
+       flash()->success('Appointment submitted successfully! Waiting for approval.');
+
 }
 
 
     public function render()
     {
-        return view('livewire.user.appointment');
+        return view('livewire.user.appointment', [
+            'translations' => $this->translations[$this->language]
+        ]);
     }
 }

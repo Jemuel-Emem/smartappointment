@@ -229,4 +229,44 @@
             </div>
         </div>
     @endif
+
+    {{-- Rating Modal --}}
+@if($showRatingModal)
+    <div class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50 px-4">
+        <div class="bg-white rounded-lg shadow-lg w-full max-w-sm sm:max-w-md p-6">
+            <h2 class="text-lg font-bold mb-4">Rate Staff</h2>
+
+            <!-- Rating Stars -->
+            <div class="flex justify-center space-x-2 mb-4">
+                @for ($i = 1; $i <= 5; $i++)
+                    <button type="button"
+                        wire:click="$set('rating', {{ $i }})"
+                        class="text-2xl {{ $rating >= $i ? 'text-yellow-400' : 'text-gray-300' }}">
+                        ★
+                    </button>
+                @endfor
+            </div>
+
+            <!-- Comment -->
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700">Comment (optional)</label>
+                <textarea wire:model="comment" rows="3"
+                    class="w-full border rounded px-3 py-2 mt-1 text-sm sm:text-base"></textarea>
+            </div>
+
+            <!-- Actions -->
+            <div class="flex flex-col sm:flex-row justify-end sm:space-x-2 space-y-2 sm:space-y-0">
+                <button wire:click="$set('showRatingModal', false)"
+                    class="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400 text-sm sm:text-base">
+                    Cancel
+                </button>
+                <button wire:click="submitRating"
+                    class="px-4 py-2 bg-emerald-600 text-white rounded hover:bg-emerald-700 text-sm sm:text-base">
+                    Submit
+                </button>
+            </div>
+        </div>
+    </div>
+@endif
+
 </div>

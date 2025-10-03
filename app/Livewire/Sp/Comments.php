@@ -13,14 +13,14 @@ class Comments extends Component
 
     public function mount()
     {
-        // 📊 Summary (average rating + total feedbacks)
+
         $this->summary = Staff_Rating::select(
                 DB::raw('AVG(rating) as avg_rating'),
                 DB::raw('COUNT(*) as total_feedbacks')
             )
             ->first();
 
-        // 💬 Latest comments (limit 10, newest first)
+
         $this->comments = Staff_Rating::with('staff', 'user')
             ->whereNotNull('comment')
             ->latest()

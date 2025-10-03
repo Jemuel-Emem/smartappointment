@@ -1,7 +1,7 @@
 <div class="max-w-7xl mt-2 mx-auto bg-gradient-to-br from-blue-50 to-white p-8 rounded-2xl shadow-lg border border-blue-100">
 
     {{-- Language Switcher --}}
-    <div class="mb-4 flex justify-end gap-2">
+    {{-- <div class="mb-4 flex justify-end gap-2">
         <button type="button" wire:click="$set('language', 'en')"
             class="px-4 py-2 rounded-lg border
             {{ $language === 'en' ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-gray-700 border-gray-300' }}">
@@ -17,10 +17,11 @@
             {{ $language === 'bs' ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-gray-700 border-gray-300' }}">
             Bisaya
         </button>
-    </div>
+    </div> --}}
 
     <h2 class="text-3xl font-bold mb-6 text-center text-blue-700">
-        {{ $translations[$language]['book_title'] }}
+    {{ $translations[$language]['book_title'] }}
+
     </h2>
 
     {{-- Success/Error Messages --}}
@@ -140,7 +141,7 @@
     <select wire:model="appointment_time" class="w-full border border-gray-300 rounded-lg px-4 py-2">
     <option value="">{{ $translations[$language]['select_time'] }}</option>
 
-  @php
+  {{-- @php
     use Carbon\Carbon;
 
     $times = [
@@ -159,13 +160,41 @@
 
 
         $isDisabled = ($appointment_date === $now->toDateString()) && $timeCarbon->lessThan($now);
+    @endphp --}}
+
+
+
+@php
+    use Carbon\Carbon;
+
+    // Default full-day slots
+    $morningSlots = ['08:00','08:30','09:00','09:30','10:00','10:30','11:00'];
+    $afternoonSlots = ['13:00','13:30','14:00','14:30','15:00','15:30','16:00','16:30','17:00'];
+
+    $limitRecord = \App\Models\AppointmentLimit::where('user_id', optional(\App\Models\Department::find($department_id))->user_id ?? null)->first();
+
+    if ($limitRecord && $limitRecord->timeslot === 'morning') {
+        $times = $morningSlots;
+    } elseif ($limitRecord && $limitRecord->timeslot === 'afternoon') {
+        $times = $afternoonSlots;
+    } else {
+        $times = array_merge($morningSlots, $afternoonSlots); // full day
+    }
+
+    $now = Carbon::now();
+@endphp
+
+@foreach ($times as $time)
+    @php
+        $timeCarbon = Carbon::createFromFormat('Y-m-d H:i', $now->toDateString() . ' ' . $time);
+        $isDisabled = ($appointment_date === $now->toDateString()) && $timeCarbon->lessThan($now);
     @endphp
 
-<option value="{{ $time }}">
-    {{ \Carbon\Carbon::createFromFormat('H:i', $time)->format('g:i A') }}
-</option>
-
+    <option value="{{ $time }}" {{ $isDisabled ? 'disabled' : '' }}>
+        {{ \Carbon\Carbon::createFromFormat('H:i', $time)->format('g:i A') }}
+    </option>
 @endforeach
+
 
 </select>
 

@@ -116,13 +116,35 @@
                     </a>
                 </li>
 
+@php
+    use Illuminate\Support\Facades\Auth;
+    use App\Models\Appointment;
 
-                        <li>
-                    <a href="{{route('admin.appointments')}}" class="flex items-center p-2 rounded-lg hover:bg-gray-700">
-                      <i class="ri-pie-chart-fill text-pink-500"></i>
-                        <span class="ms-3 text-white">Appointments</span>
-                    </a>
-                </li>
+    $userId = Auth::id();
+
+
+    $pendingAppointments = Appointment::where('status', 'pending')
+        ->whereHas('department', function ($query) use ($userId) {
+            $query->where('user_id', $userId);
+        })
+        ->count();
+@endphp
+
+<li>
+    <a href="{{ route('admin.appointments') }}" class="flex items-center p-2 rounded-lg hover:bg-gray-700 relative">
+        <i class="ri-pie-chart-fill text-pink-500"></i>
+        <span class="ms-3 text-white">Appointments</span>
+
+        @if($pendingAppointments > 0)
+            <span class="absolute right-3 bg-red-600 text-white text-xs font-bold px-2 py-0.5 rounded-full">
+                {{ $pendingAppointments }}
+            </span>
+        @endif
+    </a>
+</li> </a>
+</li>
+
+
                 <li>
                     <a href="{{route('admin.requirements')}}" class="flex items-center p-2 rounded-lg hover:bg-gray-700">
                         <i class="ri-folder-fill text-pink-500"></i>

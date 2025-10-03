@@ -5,12 +5,53 @@
         </h1>
         <p class="text-gray-600 text-lg">Daily Appointment Limit</p>
     </div>
-<div>
-    <label>Daily Appointment Limit</label>
-    <input type="number" wire:model="limit" min="1" class="border rounded p-2">
+<div class="max-w-md mx-auto bg-white shadow-md rounded-lg p-6 space-y-4">
+    <h2 class="text-lg font-bold text-gray-700 border-b pb-2">Appointment Settings</h2>
 
-    <button wire:click="saveLimit" class="bg-blue-600 text-white px-4 py-2 rounded">Save</button>
+    <!-- Limit Input -->
+    <div class="space-y-1">
+        <label class="block text-sm font-medium text-gray-600">Daily Appointment Limit</label>
+        <input
+            type="number"
+            wire:model="limit"
+            min="1"
+            class="w-full border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+        >
+        @error('limit') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
+    </div>
+
+    <!-- Timeslot Select -->
+    <div class="space-y-1">
+        <label class="block text-sm font-medium text-gray-600">Select Timeslot</label>
+        <select
+            wire:model="timeslot"
+            class="w-full border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+        >
+            <option value="full">Full Day</option>
+            <option value="morning">Morning</option>
+            <option value="afternoon">Afternoon</option>
+        </select>
+        @error('timeslot') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
+    </div>
+
+    <!-- Save Button -->
+    <div class="pt-2">
+        <button
+            wire:click="saveLimit"
+            class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md transition"
+        >
+            Save Settings
+        </button>
+    </div>
+
+    <!-- Success Message -->
+    @if (session()->has('success'))
+        <div class="mt-2 text-green-600 text-sm font-semibold">
+            {{ session('success') }}
+        </div>
+    @endif
 </div>
+
 
     <div class="flex border-b mb-4 space-x-4">
         <button wire:click="$set('activeTab', 'pending')"

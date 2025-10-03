@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class AppointmentLimit extends Model
 {
-    protected $fillable = ['user_id', 'limit'];
+    protected $fillable = ['user_id', 'limit', 'timeslot'];
 
    public function user()
     {

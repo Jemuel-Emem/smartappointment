@@ -22,7 +22,7 @@ public $rescheduleAppointmentId;
 public $new_date;
 public $new_time;
 public $department_id, $limit;
-
+public $timeslot = 'full';
 
 public function mount()
 {
@@ -50,10 +50,13 @@ public function saveLimit()
 {
     AppointmentLimit::updateOrCreate(
         ['user_id' => auth()->id()], // match by logged-in admin
-        ['limit' => $this->limit]
+        [
+            'limit' => $this->limit,
+            'timeslot' => $this->timeslot
+        ]
     );
 
-    session()->flash('success', 'Limit updated successfully.');
+    session()->flash('success', 'Limit & Timeslot updated successfully.');
 }
 public function saveReschedule()
 {

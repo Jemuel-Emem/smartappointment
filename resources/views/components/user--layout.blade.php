@@ -81,39 +81,87 @@
         $t = $translations[$lang] ?? $translations['English'];
     @endphp
 
-    <nav class="bg-primary border-gray-200">
-        <div class="flex flex-wrap items-center justify-between mx-auto p-4">
-            <a href="/" class="flex items-center space-x-3 rtl:space-x-reverse">
-                <img src="{{ asset('images/schedule.png') }}" alt="Logo" class="w-16 h-16 border-2 rounded-full">
-                <label class="font-black text-white text-2xl nav-logo">{{ $t['system_name'] }}</label>
-            </a>
-            <button data-collapse-toggle="navbar-default" type="button" class="inline-flex items-center p-2 w-10 h-10 justify-center text-sm text-gray-200 rounded-lg md:hidden hover:bg-secondary focus:outline-none focus:ring-2 focus:ring-gray-200" aria-controls="navbar-default" aria-expanded="false">
-                <span class="sr-only">Menu</span>
-                <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 17 14">
-                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 1h15M1 7h15M1 13h15"/>
-                </svg>
-            </button>
-            <div class="hidden w-full md:block md:w-auto" id="navbar-default">
-                <ul class="font-medium flex flex-col p-4 md:p-0 mt-4 border border-gray-100 rounded-lg md:flex-row md:space-x-8 rtl:space-x-reverse md:mt-0 md:border-0">
-                    <li><a href="{{ route('userdashboard') }}" class="block py-2 px-3 text-white uppercase font-bold nav-link">{{ $t['home'] }}</a></li>
-                    <li><a href="{{ route('user.appointment') }}" class="block py-2 px-3 text-white uppercase font-bold nav-link">{{ $t['appointment'] }}</a></li>
-                    <li><a href="{{ route('user.status') }}" class="block py-2 px-3 text-white uppercase font-bold nav-link">{{ $t['status_history'] }}</a></li>
-                    <li><a href="{{ route('user.profile') }}" class="mr-20 block py-2 px-3 text-white uppercase font-bold nav-link">{{ $t['profile'] }}</a></li>
-                    <li>
-                        <form method="POST" action="{{ route('logouts') }}" class="">
-                            @csrf
-                            <button type="submit" class="inline-flex items-center px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-md shadow hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition ease-in-out duration-150">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1m0-10V5m0 14a2 2 0 01-2 2H7a2 2 0 01-2-2V5a2 2 0 012-2h4a2 2 0 012 2" />
-                                </svg>
-                                {{ $t['logout'] }}
-                            </button>
-                        </form>
-                    </li>
-                </ul>
-            </div>
+@php
+    use App\Models\Appointment;
+
+
+    $user = Auth::user();
+
+    $appointmentCount = Appointment::where('user_id', $user->id)
+                                   ->where('status', 'pending')
+                                   ->count();
+@endphp
+
+
+<nav class="bg-primary border-gray-200">
+    <div class="w-screen flex flex-wrap items-center justify-around mx-auto p-4">
+        <!-- Logo -->
+        <a href="/" class="flex items-center space-x-3 rtl:space-x-reverse">
+            <img src="{{ asset('images/schedule.png') }}" alt="Logo" class="w-14 h-14 border-2 rounded-full">
+            <label class="font-black text-white text-xl md:text-2xl nav-logo">{{ $t['system_name'] }}</label>
+        </a>
+
+        <!-- Mobile Hamburger -->
+        <button data-collapse-toggle="navbar-default" type="button"
+            class="inline-flex items-center p-2 w-10 h-10 justify-center text-sm text-gray-200 rounded-lg md:hidden hover:bg-secondary focus:outline-none focus:ring-2 focus:ring-gray-200"
+            aria-controls="navbar-default" aria-expanded="false">
+            <span class="sr-only">Menu</span>
+            <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 17 14">
+                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M1 1h15M1 7h15M1 13h15"/>
+            </svg>
+        </button>
+
+        <!-- Menu Items -->
+        <div class="hidden w-full md:flex md:w-auto" id="navbar-default">
+            <ul class="flex flex-col md:flex-row md:items-center md:space-x-8 font-medium mt-4 md:mt-0">
+                <li>
+                    <a href="{{ route('userdashboard') }}"
+                       class="block py-2 px-3 text-white uppercase font-bold nav-link hover:text-secondary">
+                        {{ $t['home'] }}
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ route('user.appointment') }}"
+                       class="block py-2 px-3 text-white uppercase font-bold nav-link hover:text-secondary">
+                        {{ $t['appointment'] }}
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ route('user.status') }}"
+                       class="relative block py-2 px-3 text-white uppercase font-bold nav-link hover:text-secondary">
+                        {{ $t['status_history'] }}
+                        @if($appointmentCount > 0)
+                            <span class="absolute top-0 right-0 -mt-1 -mr-3 bg-red-600 text-white px-2 py-0.5 rounded-full text-xs">
+                                {{ $appointmentCount }}
+                            </span>
+                        @endif
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ route('user.profile') }}"
+                       class="block py-2 px-3 text-white uppercase font-bold nav-link hover:text-secondary">
+                        {{ $t['profile'] }}
+                    </a>
+                </li>
+                <li>
+                    <form method="POST" action="{{ route('logouts') }}">
+                        @csrf
+                        <button type="submit"
+                            class="inline-flex items-center px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-md shadow hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 transition ease-in-out duration-150">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 mr-2" fill="none"
+                                viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1m0-10V5m0 14a2 2 0 01-2 2H7a2 2 0 01-2-2V5a2 2 0 012-2h4a2 2 0 012 2" />
+                            </svg>
+                            {{ $t['logout'] }}
+                        </button>
+                    </form>
+                </li>
+            </ul>
         </div>
-    </nav>
+    </div>
+</nav>
 
     <div class="border-gray-200 dark:border-gray-700">
         <main>

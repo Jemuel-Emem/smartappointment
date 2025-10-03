@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -98,6 +100,19 @@
         </svg>
     </button>
 
+@php
+use App\Models\Staff_Rating;
+
+$todayComments = Staff_Rating::whereDate('created_at', now()->toDateString())
+    ->whereNotNull('comment')
+    ->where('comment', '!=', '')
+    ->count();
+
+$totalComments = Staff_Rating::whereNotNull('comment')
+    ->where('comment', '!=', '')
+    ->count();
+@endphp
+
     <aside id="sidebar-multi-level-sidebar" class="sidebar fixed top-0 left-0 z-40 w-64 h-screen transition-transform sm:translate-x-0  bg-blue-700" aria-label="Sidebar">
         <div class="h-full px-3 py-4 overflow-y-auto">
             <div class="text-center flex flex-col items-center">
@@ -117,12 +132,19 @@
                         <span class="ms-3 text-white">Manage Department</span>
                     </a>
 
-                <li>
-                    <a href="{{route('sp.comments')}}" class="flex items-center p-2 rounded-lg hover:bg-gray-700">
-                  <i class="ri-notification-3-fill text-pink-500"></i>
-                        <span class="ms-3 text-white">FeedBack/Comments</span>
-                    </a>
-                </li>
+          <li>
+    <a href="{{route('sp.comments')}}" class="flex items-center p-2 rounded-lg hover:bg-gray-700 relative">
+        <i class="ri-notification-3-fill text-pink-500"></i>
+        <span class="ms-3 text-white ">FeedBack/Comments </span>
+@if($totalComments > 0)
+    <span class="absolute right-0 bg-red-600 text-white text-xs font-bold px-2 py-0.5 rounded-full">
+        {{ $totalComments}}
+    </span>
+@endif
+
+    </a>
+</li>
+
 
 
 

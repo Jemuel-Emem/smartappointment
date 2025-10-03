@@ -15,6 +15,8 @@ return new class extends Migration
             $table->id();
     $table->foreignId('user_id')->constrained()->onDelete('cascade'); // admin user id
     $table->integer('limit')->default(10);
+    $table->enum('timeslot', ['morning', 'afternoon', 'full'])->default('full');
+
             $table->timestamps();
         });
     }
