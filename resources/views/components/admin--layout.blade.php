@@ -154,6 +154,12 @@
                 </li>
 
 
+   <li>
+                    <a href="{{route('admin.announcement')}}" class="flex items-center p-2 rounded-lg hover:bg-gray-700">
+                    <i class="ri-megaphone-fill text-pink-500"></i>
+                        <span class="ms-3 text-white">Announcement </span>
+                    </a>
+            </li>
 
 
 

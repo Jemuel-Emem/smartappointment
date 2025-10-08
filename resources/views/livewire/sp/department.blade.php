@@ -90,11 +90,62 @@
                                 @error('email') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
                             </div>
 
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700">Password</label>
-                                <input type="password" wire:model.defer="password" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" />
-                                @error('password') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
-                            </div>
+                       <div x-data="{ show: false }" class="relative">
+    <label for="password" class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+
+    <div class="relative">
+        <input
+            :type="show ? 'text' : 'password'"
+            wire:model.defer="password"
+            id="password"
+            class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 pr-10"
+        />
+
+        <!-- Eye Icon Button -->
+        <button
+            type="button"
+            @click="show = !show"
+            class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-indigo-600 focus:outline-none transition"
+        >
+            <!-- Eye (show password) -->
+            <svg x-show="!show" xmlns="http://www.w3.org/2000/svg" fill="none"
+                 viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor"
+                 class="w-5 h-5 transition">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                    d="M2.036 12.322a1.012 1.012 0 010-.644C3.423 7.51 7.338
+                       4.5 12 4.5c4.662 0 8.577 3.01 9.964
+                       7.178.07.207.07.437 0
+                       .644C20.577 16.49 16.662
+                       19.5 12 19.5c-4.662
+                       0-8.577-3.01-9.964-7.178z" />
+                <path stroke-linecap="round" stroke-linejoin="round"
+                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+
+            <!-- Eye Slash (hide password) -->
+            <svg x-show="show" xmlns="http://www.w3.org/2000/svg" fill="none"
+                 viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor"
+                 class="w-5 h-5 transition">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                    d="M3.98 8.223A10.477 10.477 0 0112
+                       5.25c4.11 0 7.776 2.223 9.764
+                       5.773a.75.75 0 010 .954 10.478
+                       10.478 0 01-4.69 4.241m-2.456.682A10.45
+                       10.45 0 0112 18.75a10.45 10.45 0
+                       01-4.69-1.082m0 0A10.478 10.478
+                       0 012.236 12a.75.75 0
+                       010-.954A10.45 10.45 0 017.31
+                       6.427m0 0L3 3m18 18l-4.31-4.31" />
+            </svg>
+        </button>
+    </div>
+
+    @error('password')
+        <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
+    @enderror
+</div>
+
+
                         </div>
 
                         <div class="mt-6 flex items-center justify-end space-x-3">

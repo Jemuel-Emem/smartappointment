@@ -112,10 +112,14 @@
 
 </div>
 
-                            <button wire:click="selectStaff({{ $staff->id }})"
-                                    class="px-3 py-1 bg-blue-500 hover:bg-blue-600 text-white rounded text-sm">
-                                {{ $selectedStaffId == $staff->id ? 'Selected' : 'Choose' }}
-                            </button>
+                        <button
+    wire:click="selectStaff({{ $staff->id }})"
+    class="px-3 py-1 rounded text-sm font-semibold
+        {{ $staff->availability ? 'bg-blue-500 hover:bg-blue-600 text-white cursor-pointer' : 'bg-gray-300 text-gray-500 cursor-not-allowed' }}"
+    {{ $staff->availability ? '' : 'disabled' }}>
+    {{ $staff->availability ? ($selectedStaffId == $staff->id ? 'Selected' : 'Choose') : 'Unavailable' }}
+</button>
+
                         </div>
                     </div>
                 @empty
@@ -166,10 +170,10 @@
 
 @php
     use Carbon\Carbon;
-
+  use App\Models\Appointment;
     // Default full-day slots
     $morningSlots = ['08:00','08:30','09:00','09:30','10:00','10:30','11:00'];
-    $afternoonSlots = ['13:00','13:30','14:00','14:30','15:00','15:30','16:00','16:30','17:00'];
+    $afternoonSlots = ['13:00','13:30','14:00','14:30','15:00','15:30','16:00','16:30'];
 
     $limitRecord = \App\Models\AppointmentLimit::where('user_id', optional(\App\Models\Department::find($department_id))->user_id ?? null)->first();
 
@@ -178,7 +182,7 @@
     } elseif ($limitRecord && $limitRecord->timeslot === 'afternoon') {
         $times = $afternoonSlots;
     } else {
-        $times = array_merge($morningSlots, $afternoonSlots); // full day
+        $times = array_merge($morningSlots, $afternoonSlots);
     }
 
     $now = Carbon::now();
@@ -186,12 +190,32 @@
 
 @foreach ($times as $time)
     @php
+
+
+
         $timeCarbon = Carbon::createFromFormat('Y-m-d H:i', $now->toDateString() . ' ' . $time);
-        $isDisabled = ($appointment_date === $now->toDateString()) && $timeCarbon->lessThan($now);
+
+
+        $isPastTime = ($appointment_date === $now->toDateString()) && $timeCarbon->lessThan($now);
+
+
+        $isBooked = false;
+        if ($appointment_date && $selectedStaffId) {
+            $isBooked = Appointment::where('appointment_date', $appointment_date)
+                ->where('appointment_time', $time)
+                ->where('staff_id', $selectedStaffId)
+                ->where('status', 'approved')
+                ->exists();
+        }
+
+        $isDisabled = $isPastTime || $isBooked;
     @endphp
 
-    <option value="{{ $time }}" {{ $isDisabled ? 'disabled' : '' }}>
+    <option value="{{ $time }}" {{ $isDisabled ? 'disabled class=text-gray-400' : '' }}>
         {{ \Carbon\Carbon::createFromFormat('H:i', $time)->format('g:i A') }}
+        @if($isBooked)
+            (Not Available)
+        @endif
     </option>
 @endforeach
 
@@ -201,17 +225,17 @@
         @error('appointment_time') <p class="text-red-500 text-sm mt-1">{{ $message }}</p> @enderror
     </div>
 
-    {{-- Submit Button --}}
+
     <button wire:click="submit"
             class="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white font-semibold py-3 px-6 rounded-lg">
         {{ $translations[$language]['submit'] }}
     </button>
 
-    {{-- Datepicker Script --}}
+
     <script>
       document.addEventListener('DOMContentLoaded', function () {
     flatpickr("#appointment_date_picker", {
-        inline: true,   // always show calendar
+        inline: true,
         dateFormat: "Y-m-d",
         minDate: "today",
         onChange: function (selectedDates, dateStr) {

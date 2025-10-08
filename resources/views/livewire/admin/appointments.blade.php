@@ -113,7 +113,7 @@
                 <tbody class="bg-white divide-y divide-gray-200">
                     @foreach($filteredAppointments as $appointment)
                         <tr class="hover:bg-gray-50 transition-colors">
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ $appointment->user->name ?? 'N/A' }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ $appointment->user->firstname  ?? 'N/A' }}  {{ $appointment->user->lastname ?? 'N/A' }}</td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{{ $appointment->staff->name ?? 'N/A' }}</td>
                             <td class="px-6 py-4 text-sm text-gray-700">{{ $appointment->purpose_of_appointment }}</td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{{ \Carbon\Carbon::parse($appointment->appointment_date)->format('M d, Y') }}</td>

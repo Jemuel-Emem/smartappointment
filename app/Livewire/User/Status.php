@@ -1,9 +1,9 @@
 <?php
 
 namespace App\Livewire\User;
+
 use App\Models\Staff_Rating;
 use App\Models\Appointment;
-use App\Models\Staff;
 use Carbon\Carbon;
 use Livewire\Component;
 use Illuminate\Support\Facades\Auth;
@@ -18,19 +18,19 @@ class Status extends Component
 
     public $showRatingModal = false;
     public $rating;
-      public $comment;
-   public $language;
+    public $comment;
+    public $language;
+
     public function mount()
     {
-          $this->language = Auth::user()->language ?? 'English';
+        $this->language = Auth::user()->language ?? 'English';
         $this->refreshAppointments();
     }
 
     public function cancel($id)
     {
         $appointment = Appointment::where('user_id', Auth::id())->findOrFail($id);
-        $appointment->status = 'cancelled';
-        $appointment->save();
+        $appointment->update(['status' => 'cancelled']);
 
         $this->refreshAppointments();
         session()->flash('message', 'Appointment cancelled successfully.');
@@ -46,35 +46,27 @@ class Status extends Component
 
     public function reschedule()
     {
-        // if ($this->selectedAppointment) {
-        //     $this->selectedAppointment->appointment_date = $this->rescheduleDate;
-        //     $this->selectedAppointment->appointment_time = $this->rescheduleTime;
-        //     $this->selectedAppointment->status = 'pending';
-        //     $this->selectedAppointment->save();
-        // }
+        if (!$this->selectedAppointment) return;
 
-        // $this->showRescheduleModal = false;
-        // $this->refreshAppointments();
-        // session()->flash('message', 'Appointment rescheduled successfully.');
+        $this->validate([
+            'rescheduleDate' => 'required|date|after_or_equal:today',
+            'rescheduleTime' => 'required',
+        ]);
 
-         if ($this->selectedAppointment) {
-        // Combine into full datetime
-        $slot = Carbon::createFromFormat(
-            'Y-m-d H:i',
-            $this->rescheduleDate . ' ' . $this->rescheduleTime
-        );
+        $slot = Carbon::createFromFormat('Y-m-d H:i', $this->rescheduleDate . ' ' . $this->rescheduleTime);
 
-        // Prevent rescheduling to the past
+        // 🕒 Prevent selecting past time
         if ($slot->lte(Carbon::now())) {
             session()->flash('error', 'You cannot reschedule to a past time.');
             return;
         }
 
-        // Prevent conflicts with already approved appointments
-        $conflict = \App\Models\Appointment::where('staff_id', $this->selectedAppointment->staff_id)
+        // 🚫 Prevent double booking for same staff (or department)
+        $conflict = Appointment::where('staff_id', $this->selectedAppointment->staff_id)
             ->where('appointment_date', $this->rescheduleDate)
             ->where('appointment_time', $this->rescheduleTime)
-            ->where('status', 'approved')
+            ->where('status', '!=', 'cancelled')
+            ->where('id', '!=', $this->selectedAppointment->id)
             ->exists();
 
         if ($conflict) {
@@ -82,47 +74,47 @@ class Status extends Component
             return;
         }
 
-        // Save new schedule
-        $this->selectedAppointment->appointment_date = $this->rescheduleDate;
-        $this->selectedAppointment->appointment_time = $this->rescheduleTime;
-        $this->selectedAppointment->status = 'pending';
-        $this->selectedAppointment->save();
-    }
+        // ✅ Update appointment
+        $this->selectedAppointment->update([
+            'appointment_date' => $this->rescheduleDate,
+            'appointment_time' => $this->rescheduleTime,
+            'status' => 'pending',
+        ]);
 
-    $this->showRescheduleModal = false;
-    $this->refreshAppointments();
-    session()->flash('message', 'Appointment rescheduled successfully.');
+        $this->showRescheduleModal = false;
+        $this->refreshAppointments();
+        session()->flash('message', 'Appointment rescheduled successfully.');
     }
 
     public function openRatingModal($id)
     {
         $this->selectedAppointment = Appointment::where('user_id', Auth::id())->findOrFail($id);
-          $this->rating = null;
+        $this->rating = null;
         $this->comment = null;
         $this->showRatingModal = true;
     }
 
-public function submitRating()
-{
-    if ($this->selectedAppointment && $this->rating >= 1 && $this->rating <= 5) {
-       Staff_Rating::updateOrCreate(
-            [
-                'staff_id' => $this->selectedAppointment->staff_id,
-                'user_id'  => auth()->id(),
-            ],
-            [
-                'rating' => $this->rating,
-                 'comment' => $this->comment,
-            ]
-        );
-   $this->selectedAppointment->rated = true;
-        $this->selectedAppointment->save();
-        $this->showRatingModal = false;
-        $this->refreshAppointments();
-        session()->flash('message', 'Thank you for rating the staff!');
-    }
-}
+    public function submitRating()
+    {
+        if ($this->selectedAppointment && $this->rating >= 1 && $this->rating <= 5) {
+            Staff_Rating::updateOrCreate(
+                [
+                    'staff_id' => $this->selectedAppointment->staff_id,
+                    'user_id' => auth()->id(),
+                ],
+                [
+                    'rating' => $this->rating,
+                    'comment' => $this->comment,
+                ]
+            );
 
+            $this->selectedAppointment->update(['rated' => true]);
+            $this->showRatingModal = false;
+            $this->refreshAppointments();
+
+            session()->flash('message', 'Thank you for rating the staff!');
+        }
+    }
 
     private function refreshAppointments()
     {

@@ -12,6 +12,9 @@ class Staffs extends Component
     public $showModal = false;
     public $staffIdBeingEdited = null;
 
+    public $confirmingDelete = false;
+public $staffIdBeingDeleted = null;
+
     protected $rules = [
         'name' => 'required|string|max:255',
         'address' => 'required|string|max:255',
@@ -101,12 +104,26 @@ public function toggleAvailability($id)
         $this->resetForm();
     }
 
-    public function deleteStaff($id)
-    {
-        $staff = Staff::findOrFail($id);
+ public function confirmDelete($id)
+{
+    $this->staffIdBeingDeleted = $id;
+    $this->confirmingDelete = true;
+}
+
+public function deleteStaffConfirmed()
+{
+    $staff = \App\Models\Staff::find($this->staffIdBeingDeleted);
+
+    if ($staff) {
         $staff->delete();
-        session()->flash('message', 'Staff deleted successfully.');
+        session()->flash('message', 'Staff deleted successfully!');
+    } else {
+        session()->flash('error', 'Staff not found.');
     }
+
+    $this->confirmingDelete = false;
+    $this->staffIdBeingDeleted = null;
+}
 
     private function resetForm()
     {

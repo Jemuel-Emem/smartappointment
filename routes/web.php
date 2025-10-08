@@ -52,6 +52,11 @@ Route::prefix('admin')->middleware(['auth', admin::class])->group(function () {
     })->name('admin.requirements');
 
 
+
+          Route::get('/admin.announcement', function () {
+        return view('admin.announcement');
+    })->name('admin.announcement');
+
 });
 
 
@@ -67,6 +72,11 @@ Route::prefix('SuperAdmin')->middleware(['auth', SuperAdmin::class])->group(func
         Route::get('/sp.comments', function () {
         return view('sp.comments');
     })->name('sp.comments');
+
+
+        Route::get('/sp.announcement', function () {
+        return view('sp.announcement');
+    })->name('sp.announcement');
 
 });
 
@@ -88,6 +98,9 @@ Route::prefix('User')->middleware(['auth', User::class])->group(function () {
         return view('user.status');
     })->name('user.status');
 
+    Route::get('/user.announcement', function () {
+        return view('user.announcement');
+    })->name('user.announcement');
 
 });
 

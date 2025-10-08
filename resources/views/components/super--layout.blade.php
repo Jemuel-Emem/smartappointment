@@ -131,6 +131,7 @@ $totalComments = Staff_Rating::whereNotNull('comment')
                        <i class="text-pink-500 ri-home-fill"></i>
                         <span class="ms-3 text-white">Manage Department</span>
                     </a>
+            </li>
 
           <li>
     <a href="{{route('sp.comments')}}" class="flex items-center p-2 rounded-lg hover:bg-gray-700 relative">
@@ -147,7 +148,12 @@ $totalComments = Staff_Rating::whereNotNull('comment')
 
 
 
-
+          <li>
+                    <a href="{{route('sp.announcement')}}" class="flex items-center p-2 rounded-lg hover:bg-gray-700">
+                    <i class="ri-megaphone-fill text-pink-500"></i>
+                        <span class="ms-3 text-white">Announcement </span>
+                    </a>
+            </li>
 
 
 

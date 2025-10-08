@@ -189,54 +189,87 @@
         </div>
     </div>
 
-    {{-- Reschedule Modal --}}
-    @if($showRescheduleModal)
-        <div class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50 px-4">
-            <div class="bg-white rounded-lg shadow-lg w-full max-w-sm sm:max-w-md p-6">
-                <h2 class="text-lg font-bold mb-4">{{ $lang['modal_title'] }}</h2>
+ {{-- Reschedule Modal --}}
+@if($showRescheduleModal)
+    <div class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50 px-4">
+        <div class="bg-white rounded-lg shadow-lg w-full max-w-sm sm:max-w-md p-6">
+            <h2 class="text-lg font-bold mb-4">{{ $lang['modal_title'] }}</h2>
 
-                <div class="mb-4">
-                    <label class="block text-sm font-medium text-gray-700">{{ $lang['date_label'] }}</label>
-                    <input type="date" wire:model="rescheduleDate" class="w-full border rounded px-3 py-2 mt-1 text-sm sm:text-base">
-                </div>
+            {{-- Date Picker --}}
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700">{{ $lang['date_label'] }}</label>
+                <input type="date" wire:model="rescheduleDate" class="w-full border rounded px-3 py-2 mt-1 text-sm sm:text-base">
+                @error('rescheduleDate')
+                    <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                @enderror
+            </div>
 
-                <div class="mb-4">
-                    <label class="block text-sm font-medium text-gray-700">{{ $lang['time_label'] }}</label>
-                    <select wire:model="rescheduleTime" class="w-full border rounded px-3 py-2 mt-1 text-sm sm:text-base">
-                        <option value="">{{ $lang['time_label'] }}</option>
-                        <option value="08:30">08:30 AM</option>
-                        <option value="09:00">09:00 AM</option>
-                        <option value="09:30">09:30 AM</option>
-                        <option value="10:00">10:00 AM</option>
-                        <option value="10:30">10:30 AM</option>
-                        <option value="11:00">11:00 AM</option>
-                        <option value="13:00">01:00 PM</option>
-                        <option value="13:30">01:30 PM</option>
-                        <option value="14:00">02:00 PM</option>
-                        <option value="14:30">02:30 PM</option>
-                        <option value="15:00">03:00 PM</option>
-                        <option value="15:30">03:30 PM</option>
-                        <option value="16:00">04:00 PM</option>
-                        <option value="16:30">04:30 PM</option>
-                        <option value="17:00">05:00 PM</option>
-                    </select>
-                </div>
+            {{-- Time Picker with Validation --}}
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700">{{ $lang['time_label'] }}</label>
+                <select wire:model="rescheduleTime" class="w-full border rounded px-3 py-2 mt-1 text-sm sm:text-base">
+                    <option value="">{{ $lang['time_label'] }}</option>
 
-                <div class="flex flex-col sm:flex-row justify-end sm:space-x-2 space-y-2 sm:space-y-0">
-                    <button wire:click="$set('showRescheduleModal', false)" class="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400 text-sm sm:text-base">{{ $lang['modal_cancel'] }}</button>
-                    <button wire:click="reschedule" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm sm:text-base">{{ $lang['modal_save'] }}</button>
-                </div>
+                    @php
+                        $morningSlots = ['08:30','09:00','09:30','10:00','10:30','11:00'];
+                        $afternoonSlots = ['13:00','13:30','14:00','14:30','15:00','15:30','16:00','16:30','17:00'];
+                        $times = array_merge($morningSlots, $afternoonSlots);
+
+                        $now = \Carbon\Carbon::now();
+                    @endphp
+
+                    @foreach ($times as $time)
+                        @php
+                            $timeCarbon = \Carbon\Carbon::createFromFormat('Y-m-d H:i', ($rescheduleDate ?? $now->toDateString()) . ' ' . $time);
+                            $isPastTime = ($rescheduleDate === $now->toDateString()) && $timeCarbon->lessThan($now);
+
+                            // Prevent double-booking
+                            $isBooked = false;
+                            if ($rescheduleDate && isset($selectedStaffId)) {
+                                $isBooked = \App\Models\Appointment::where('appointment_date', $rescheduleDate)
+                                    ->where('appointment_time', $time)
+                                    ->where('staff_id', $selectedStaffId)
+                                    ->where('status', 'approved')
+                                    ->exists();
+                            }
+
+                            $isDisabled = $isPastTime || $isBooked;
+                        @endphp
+
+                        <option value="{{ $time }}" {{ $isDisabled ? 'disabled class=text-gray-400' : '' }}>
+                            {{ \Carbon\Carbon::createFromFormat('H:i', $time)->format('g:i A') }}
+                            @if($isBooked)
+                                ({{ $lang['not_available'] ?? 'Not Available' }})
+                            @endif
+                        </option>
+                    @endforeach
+                </select>
+
+                @error('rescheduleTime')
+                    <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                @enderror
+            </div>
+
+            {{-- Action Buttons --}}
+            <div class="flex flex-col sm:flex-row justify-end sm:space-x-2 space-y-2 sm:space-y-0">
+                <button wire:click="$set('showRescheduleModal', false)" class="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400 text-sm sm:text-base">
+                    {{ $lang['modal_cancel'] }}
+                </button>
+                <button wire:click="reschedule" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm sm:text-base">
+                    {{ $lang['modal_save'] }}
+                </button>
             </div>
         </div>
-    @endif
+    </div>
+@endif
 
-    {{-- Rating Modal --}}
+
+
 @if($showRatingModal)
     <div class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50 px-4">
         <div class="bg-white rounded-lg shadow-lg w-full max-w-sm sm:max-w-md p-6">
             <h2 class="text-lg font-bold mb-4">Rate Staff</h2>
 
-            <!-- Rating Stars -->
             <div class="flex justify-center space-x-2 mb-4">
                 @for ($i = 1; $i <= 5; $i++)
                     <button type="button"

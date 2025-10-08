@@ -34,7 +34,10 @@ new #[Layout('layouts.guest')] class extends Component
              'barangay' => ['required', 'string', 'max:255'],
               'sition' => ['required', 'string', 'max:255'],
               'language' => ['required', 'string', 'max:255'],
-                'phone_number' => ['required', 'string', 'max:255'],
+    'phone_number' => ['required', 'digits:11'],
+
+
+
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
            'password' => [
     'required',
@@ -180,17 +183,30 @@ new #[Layout('layouts.guest')] class extends Component
 
             <!-- Middlename -->
             <div>
-                <x-input-label for="middlename" :value="__('Middlename')" />
+                <x-input-label for="middlename" :value="__('Middlename (Optional)')" />
                 <x-text-input wire:model="middlename" id="middlename" class="block mt-1 w-full" type="text" required autocomplete="middlename" />
                 <x-input-error :messages="$errors->get('middlename')" class="mt-2" />
             </div>
 
             <!-- Phone Number -->
-            <div>
-                <x-input-label for="phone_number" :value="__('Phone Number')" />
-                <x-text-input wire:model="phone_number" id="phone_number" class="block mt-1 w-full" type="text" required autocomplete="phone_number" />
-                <x-input-error :messages="$errors->get('phone_number')" class="mt-2" />
-            </div>
+<div>
+    <x-input-label for="phone_number" :value="__('Phone Number')" />
+    <x-text-input
+        wire:model="phone_number"
+        id="phone_number"
+        class="block mt-1 w-full"
+        type="text"
+        required
+        maxlength="11"
+        inputmode="numeric"
+        pattern="[0-9]*"
+        oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 11);"
+        autocomplete="tel"
+    />
+    <x-input-error :messages="$errors->get('phone_number')" class="mt-2" />
+</div>
+
+
 
             <!-- Barangay -->
             <div>

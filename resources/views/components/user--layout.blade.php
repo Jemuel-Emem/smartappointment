@@ -138,6 +138,13 @@
                         @endif
                     </a>
                 </li>
+
+                      <li>
+                    <a href="{{route('user.announcement')}}" class="flex items-center p-2 rounded-lg hover:text-secondary">
+
+                        <span class="ms-3 text-white uppercase">Announcement </span>
+                    </a>
+            </li>
                 <li>
                     <a href="{{ route('user.profile') }}"
                        class="block py-2 px-3 text-white uppercase font-bold nav-link hover:text-secondary">

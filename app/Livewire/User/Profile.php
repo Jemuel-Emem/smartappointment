@@ -15,6 +15,9 @@ class Profile extends Component
     public $language;
     public $lang = [];
 
+    public $password;
+public $password_confirmation;
+
     public function mount()
     {
         $user = Auth::user();
@@ -65,35 +68,43 @@ class Profile extends Component
         $this->lang = $translations[$this->language] ?? $translations['English'];
     }
 
-    public function updateProfile()
-    {
-        $this->validate([
-            'firstname'  => 'required|string|max:255',
-            'lastname'   => 'required|string|max:255',
-            'middlename' => 'nullable|string|max:255',
-            'email'      => 'required|email|max:255|unique:users,email,' . Auth::id(),
-            'barangay'   => 'nullable|string|max:255',
-            'language'   => 'nullable|string|max:255',
-        ]);
+public function updateProfile()
+{
+    $this->validate([
+        'firstname'  => 'required|string|max:255',
+        'lastname'   => 'required|string|max:255',
+        'middlename' => 'nullable|string|max:255',
+        'email'      => 'required|email|max:255|unique:users,email,' . Auth::id(),
+        'barangay'   => 'nullable|string|max:255',
+        'language'   => 'nullable|string|max:255',
+        'password'   => 'nullable|string|min:8|confirmed', // new validation rule
+    ]);
 
-        $user = Auth::user();
-        $user->update([
-            'firstname'  => $this->firstname,
-            'lastname'   => $this->lastname,
-            'middlename' => $this->middlename,
-            'email'      => $this->email,
-            'barangay'   => $this->barangay,
-            'language'   => $this->language,
-        ]);
+    $user = Auth::user();
 
-        $messages = [
-            'English' => 'Profile updated successfully!',
-            'Tagalog' => 'Matagumpay na na-update ang profile!',
-            'Bisaya'  => 'Malampuson nga na-update ang profile!',
-        ];
+    $updateData = [
+        'firstname'  => $this->firstname,
+        'lastname'   => $this->lastname,
+        'middlename' => $this->middlename,
+        'email'      => $this->email,
+        'barangay'   => $this->barangay,
+        'language'   => $this->language,
+    ];
 
-        session()->flash('success', $messages[$this->language] ?? $messages['English']);
+    if (!empty($this->password)) {
+        $updateData['password'] = bcrypt($this->password);
     }
+
+    $user->update($updateData);
+
+    $messages = [
+        'English' => 'Profile updated successfully!',
+        'Tagalog' => 'Matagumpay na na-update ang profile!',
+        'Bisaya'  => 'Malampuson nga na-update ang profile!',
+    ];
+
+    session()->flash('success', $messages[$this->language] ?? $messages['English']);
+}
 
     public function render()
     {
