@@ -66,14 +66,6 @@
     @if($showStaffList)
         <div class="mb-6 bg-blue-50 p-4 rounded-lg">
 
-    @if(!is_null($remainingSlots))
-    <div class="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-        <p class="text-gray-700 font-semibold">
-            {{ $translations[$language]['available_slots'] ?? 'Available Slots:' }}
-            <span class="text-blue-600">{{ $remainingSlots }}</span>
-        </p>
-    </div>
-@endif
             <h3 class="font-semibold text-blue-800 mb-3">{{ $translations[$language]['recommended'] }}</h3>
 
             @error('selectedStaffId')
@@ -131,6 +123,14 @@
         </div>
     @endif
 
+    @if(!is_null($remainingSlots))
+    <div class="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+        <p class="text-gray-700 font-semibold">
+            {{ $translations[$language]['available_slots'] ?? 'Available Slots:' }}
+            <span class="text-blue-600">{{ $remainingSlots }}</span>
+        </p>
+    </div>
+@endif
 
     <div class="mb-6" wire:ignore>
         <label class="block text-gray-700 font-semibold mb-2">{{ $translations[$language]['appointment_date'] }}</label>

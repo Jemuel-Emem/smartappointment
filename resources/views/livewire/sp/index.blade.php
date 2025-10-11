@@ -2,15 +2,40 @@
     <div class="p-6 space-y-6">
 
 
-    <!-- Top Rated Staff -->
-    <div class="bg-white p-4 rounded shadow">
-        <h2 class="font-semibold mb-2">🏅 Top Rated Staff</h2>
-        <ul>
-            @foreach($topStaff as $staff)
-                <li>{{ $staff->name }} - ⭐ {{ number_format($staff->avg_rating, 1) }}</li>
-            @endforeach
-        </ul>
+   <div class="bg-white p-6 rounded-2xl shadow-md">
+    <h2 class="text-xl font-semibold mb-4 flex items-center gap-2">
+        🏅 Top 10 Rated Staff
+    </h2>
+
+    <div class="space-y-3">
+        @foreach($topStaff as $index => $staff)
+            <div class="flex items-center justify-between
+                @if($index === 0) bg-yellow-100 border-l-4 border-yellow-500 shadow-sm @else bg-gray-50 @endif
+                p-3 rounded-xl transition hover:bg-gray-100">
+
+                <div class="flex items-center gap-3">
+                    <span class="font-bold text-gray-700 text-lg w-6 text-center">
+                        {{ $index + 1 }}
+                    </span>
+
+                    <span class="font-medium text-gray-800">
+                        {{ $staff->name }}
+                    </span>
+
+                    @if($index === 0)
+                        <span class="ml-2 bg-yellow-400 text-white text-xs font-bold px-2 py-1 rounded-full">
+                            🏆
+                        </span>
+                    @endif
+                </div>
+
+                <div class="text-sm text-gray-600">
+                    ⭐ {{ number_format($staff->avg_rating, 1) }}
+                </div>
+            </div>
+        @endforeach
     </div>
+</div>
 
     <!-- High Demand Services -->
     <div class="bg-white p-4 rounded shadow">

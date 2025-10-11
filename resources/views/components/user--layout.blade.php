@@ -117,19 +117,19 @@
             <ul class="flex flex-col md:flex-row md:items-center md:space-x-8 font-medium mt-4 md:mt-0">
                 <li>
                     <a href="{{ route('userdashboard') }}"
-                       class="block py-2 px-3 text-white uppercase font-bold nav-link hover:text-secondary">
+                       class="block py-2 px-3 text-white uppercase font-bold nav-link hover:text-blue-500">
                         {{ $t['home'] }}
                     </a>
                 </li>
                 <li>
                     <a href="{{ route('user.appointment') }}"
-                       class="block py-2 px-3 text-white uppercase font-bold nav-link hover:text-secondary">
+                       class="block py-2 px-3 text-white uppercase font-bold nav-link hover:text-blue-500">
                         {{ $t['appointment'] }}
                     </a>
                 </li>
                 <li>
                     <a href="{{ route('user.status') }}"
-                       class="relative block py-2 px-3 text-white uppercase font-bold nav-link hover:text-secondary">
+                       class="relative block py-2 px-3 text-white uppercase font-bold nav-link hover:text-blue-500">
                         {{ $t['status_history'] }}
                         @if($appointmentCount > 0)
                             <span class="absolute top-0 right-0 -mt-1 -mr-3 bg-red-600 text-white px-2 py-0.5 rounded-full text-xs">
@@ -140,14 +140,14 @@
                 </li>
 
                       <li>
-                    <a href="{{route('user.announcement')}}" class="flex items-center p-2 rounded-lg hover:text-secondary">
+                    <a href="{{route('user.announcement')}}" class="flex items-center p-2 rounded-lg hover:text-blue-500">
 
                         <span class="ms-3 text-white uppercase">Announcement </span>
                     </a>
             </li>
                 <li>
                     <a href="{{ route('user.profile') }}"
-                       class="block py-2 px-3 text-white uppercase font-bold nav-link hover:text-secondary">
+                       class="block py-2 px-3 text-white uppercase font-bold nav-link hover:text-blue-500">
                         {{ $t['profile'] }}
                     </a>
                 </li>

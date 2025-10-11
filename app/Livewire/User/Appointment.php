@@ -184,7 +184,7 @@ public function mount()
 
         if (empty($this->purpose_of_appointment)) {
 
-              flash()->error('Please enter purpose to get suggestions.');
+              flash()->warning('Please enter purpose to get suggestions.');
             return;
         }
 
@@ -243,7 +243,7 @@ public function mount()
 //         ->exists();
 
 //     if ($conflict) {
-//         session()->flash('error', 'Sorry, this time slot is already booked ');
+//         session()->flash('warning', 'Sorry, this time slot is already booked ');
 //         return;
 //     }
 
@@ -304,7 +304,7 @@ $slot = Carbon::createFromFormat('Y-m-d H:i', $this->appointment_date . ' ' . $t
 
 if ($slot->lte(Carbon::now())) {
 
-flash()->error('You cannot book an appointment in the past. Please choose a future time.');
+flash()->warning('You cannot book an appointment in the past. Please choose a future time.');
 
     return;
 }
@@ -312,7 +312,7 @@ flash()->error('You cannot book an appointment in the past. Please choose a futu
 
     if ($slot->lte(Carbon::now())) {
 
-        flash()->error('You cannot book an appointment in the past. Please choose a future time.');
+        flash()->warning('You cannot book an appointment in the past. Please choose a future time.');
         return;
     }
 
@@ -325,7 +325,7 @@ flash()->error('You cannot book an appointment in the past. Please choose a futu
 
     if ($conflict) {
 
-          flash()->error('Sorry, this time slot is already booked.');
+          flash()->warning('Sorry, this time slot is already booked.');
         return;
     }
 
@@ -341,7 +341,7 @@ flash()->error('You cannot book an appointment in the past. Please choose a futu
 
         if ($appointmentsCount >= $limitRecord->limit) {
 
-                 flash()->error('This department has reached its appointment limit for the day.');
+                 flash()->warning('This department has reached its appointment limit for the day.');
             return;
         }
     }
@@ -353,7 +353,7 @@ flash()->error('You cannot book an appointment in the past. Please choose a futu
 
     if ($appointmentsCount >= $limitRecord->limit) {
 
-          flash()->error('This department has reached its appointment limit for the day.');
+          flash()->warning('This department has reached its appointment limit for the day.');
         return;
     }
 

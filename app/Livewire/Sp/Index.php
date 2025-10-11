@@ -19,12 +19,13 @@ class Index extends Component
     public function mount()
     {
 
-        $this->topStaff = Staff::select('staff.id', 'staff.name', DB::raw('AVG(staff__ratings.rating) as avg_rating'))
-            ->join('staff__ratings', 'staff.id', '=', 'staff__ratings.staff_id')
-            ->groupBy('staff.id', 'staff.name')
-            ->orderByDesc('avg_rating')
-            ->take(5)
-            ->get();
+   $this->topStaff = Staff::select('staff.id', 'staff.name', DB::raw('AVG(staff__ratings.rating) as avg_rating'))
+    ->join('staff__ratings', 'staff.id', '=', 'staff__ratings.staff_id')
+    ->groupBy('staff.id', 'staff.name')
+    ->orderByDesc('avg_rating')
+    ->take(10)
+    ->get();
+
 
         $this->highDemandServices = Staff::select('staff.service_type', DB::raw('COUNT(appointments.id) as total'))
             ->join('appointments', 'staff.id', '=', 'appointments.staff_id')
