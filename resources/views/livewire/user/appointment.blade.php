@@ -169,24 +169,47 @@
 
 
 @php
-    use Carbon\Carbon;
-  use App\Models\Appointment;
-    // Default full-day slots
-    $morningSlots = ['08:00','08:30','09:00','09:30','10:00','10:30','11:00'];
-    $afternoonSlots = ['13:00','13:30','14:00','14:30','15:00','15:30','16:00','16:30'];
+use Carbon\Carbon;
+use App\Models\Appointment;
+use App\Models\AppointmentLimit;
+use App\Models\Department;
 
-    $limitRecord = \App\Models\AppointmentLimit::where('user_id', optional(\App\Models\Department::find($department_id))->user_id ?? null)->first();
 
-    if ($limitRecord && $limitRecord->timeslot === 'morning') {
-        $times = $morningSlots;
-    } elseif ($limitRecord && $limitRecord->timeslot === 'afternoon') {
-        $times = $afternoonSlots;
-    } else {
-        $times = array_merge($morningSlots, $afternoonSlots);
-    }
+$morningSlots = ['08:00','08:30','09:00','09:30','10:00','10:30','11:00'];
+$afternoonSlots = ['13:00','13:30','14:00','14:30','15:00','15:30','16:00','16:30'];
 
-    $now = Carbon::now();
+$department = Department::find($department_id);
+$adminUserId = optional($department)->user_id;
+
+
+$limit = 15;
+$timeslot = 'full';
+$limitRecord = null;
+
+if ($adminUserId && $appointment_date) {
+    $limitRecord = AppointmentLimit::where('user_id', $adminUserId)
+        ->whereDate('limit_date', $appointment_date)
+        ->first();
+}
+
+
+if ($limitRecord) {
+    $limit = $limitRecord->limit;
+    $timeslot = $limitRecord->timeslot;
+}
+
+
+if ($timeslot === 'morning') {
+    $times = $morningSlots;
+} elseif ($timeslot === 'afternoon') {
+    $times = $afternoonSlots;
+} else {
+    $times = array_merge($morningSlots, $afternoonSlots);
+}
+
+$now = Carbon::now();
 @endphp
+
 
 @foreach ($times as $time)
     @php

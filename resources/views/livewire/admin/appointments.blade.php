@@ -34,6 +34,17 @@
         @error('timeslot') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
     </div>
 
+        <div class="space-y-1">
+        <label class="block text-sm font-medium text-gray-600">Select Date</label>
+        <input
+            type="date"
+            wire:model="limit_date"
+            min="{{ now()->toDateString() }}"
+            class="w-full border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+        >
+        @error('limit_date') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
+    </div>
+
     <!-- Save Button -->
     <div class="pt-2">
         <button

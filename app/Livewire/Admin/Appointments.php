@@ -21,7 +21,7 @@ public $showRescheduleModal = false;
 public $rescheduleAppointmentId;
 public $new_date;
 public $new_time;
-public $department_id, $limit;
+public $department_id, $limit, $limit_date;
 public $timeslot = 'full';
 
 public function mount()
@@ -48,16 +48,26 @@ public function openReschedule($id)
 
 public function saveLimit()
 {
+    $this->validate([
+        'limit' => 'required|integer|min:1',
+        'timeslot' => 'required|in:full,morning,afternoon',
+        'limit_date' => 'required|date|after_or_equal:today',
+    ]);
+
     AppointmentLimit::updateOrCreate(
-        ['user_id' => auth()->id()], // match by logged-in admin
+        [
+            'user_id' => auth()->id(),
+            'limit_date' => $this->limit_date,
+        ],
         [
             'limit' => $this->limit,
-            'timeslot' => $this->timeslot
+            'timeslot' => $this->timeslot,
         ]
     );
 
-    session()->flash('success', 'Limit & Timeslot updated successfully.');
+    flash()->success('Limit updated successfully for ' . $this->limit_date);
 }
+
 public function saveReschedule()
 {
     $this->validate([

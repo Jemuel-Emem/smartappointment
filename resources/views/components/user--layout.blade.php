@@ -142,7 +142,7 @@
                       <li>
                     <a href="{{route('user.announcement')}}" class="flex items-center p-2 rounded-lg hover:text-blue-500">
 
-                        <span class="ms-3 text-white uppercase">Announcement </span>
+                        <span class=" text-white uppercase">Announcement</span>
                     </a>
             </li>
                 <li>

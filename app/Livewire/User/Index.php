@@ -14,7 +14,7 @@ class Index extends Component
 
         $translations = [
             'title' => 'Welcome to <span class="text-blue-600">SMART Appointment System</span>',
-            'subtitle' => 'Streamline your scheduling process with ease. appoint, manage, and track appointments in one smart platform — anytime, anywhere.',
+            'subtitle' => 'Streamline your scheduling process with ease. Appoint, manage, and track appointments in one smart platform — anytime, anywhere.',
             'button' => 'APPOINT NOW!',
         ];
 

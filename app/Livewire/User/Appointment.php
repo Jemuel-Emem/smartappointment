@@ -94,13 +94,40 @@ class Appointment extends Component
     }
 
 public $remainingSlots;
+// public function loadAvailableSlots()
+// {
+//     if (!$this->department_id || !$this->appointment_date) {
+//         $this->remainingSlots = null;
+//         return;
+//     }
+
+//     $department = Department::find($this->department_id);
+//     if (!$department) {
+//         $this->remainingSlots = null;
+//         return;
+//     }
+
+//     $adminId = $department->user_id;
+//     $limitRecord = AppointmentLimit::where('user_id', $adminId)->first();
+//     $limit = $limitRecord ? $limitRecord->limit : 0;
+
+//     $count = A::where('department_id', $adminId)
+//         ->whereDate('appointment_date', $this->appointment_date)
+//         ->count();
+
+
+
+//     $this->remainingSlots = max($limit - $count, 0);
+// }
 public function loadAvailableSlots()
 {
+    // Reset slots when no department or date
     if (!$this->department_id || !$this->appointment_date) {
         $this->remainingSlots = null;
         return;
     }
 
+    // Find the department
     $department = Department::find($this->department_id);
     if (!$department) {
         $this->remainingSlots = null;
@@ -108,15 +135,26 @@ public function loadAvailableSlots()
     }
 
     $adminId = $department->user_id;
-    $limitRecord = AppointmentLimit::where('user_id', $adminId)->first();
-    $limit = $limitRecord ? $limitRecord->limit : 0;
 
+    // ✅ Get appointment limit for this specific date only
+    $limitRecord = AppointmentLimit::where('user_id', $adminId)
+        ->whereDate('limit_date', $this->appointment_date)
+        ->first();
+
+    // If no specific date limit found, fallback to default daily limit
+    if (!$limitRecord) {
+        $this->remainingSlots = null; // or set default like 0 or 15
+        return;
+    }
+
+    $limit = $limitRecord->limit;
+
+    // ✅ Count appointments for that same date only
     $count = A::where('department_id', $adminId)
         ->whereDate('appointment_date', $this->appointment_date)
         ->count();
 
-
-
+    // ✅ Compute remaining slots for that date only
     $this->remainingSlots = max($limit - $count, 0);
 }
 
@@ -225,66 +263,6 @@ public function mount()
         $this->selectedStaffId = $staffId;
     }
 
-
-//     public function submit()
-// {
-//     $this->validate([
-//         'purpose_of_appointment' => 'required|string|max:255',
-//         'appointment_date' => 'required|date|after_or_equal:today',
-//         'appointment_time' => 'required|date_format:H:i',
-//         'selectedStaffId' => 'required|exists:staff,id',
-//     ]);
-
-
-//     $conflict = A::where('staff_id', $this->selectedStaffId)
-//         ->where('appointment_date', $this->appointment_date)
-//         ->where('appointment_time', $this->appointment_time)
-//         ->where('status', 'approved')
-//         ->exists();
-
-//     if ($conflict) {
-//         session()->flash('warning', 'Sorry, this time slot is already booked ');
-//         return;
-//     }
-
-//     $department = Department::findOrFail($this->department_id);
-
-//     // A::create([
-//     //     'user_id' => auth()->id(),
-//     //     'department_id' => $department->user_id,
-//     //     'staff_id' => $this->selectedStaffId,
-//     //     'purpose_of_appointment' => $this->purpose_of_appointment,
-//     //     'appointment_date' => $this->appointment_date,
-//     //     'appointment_time' => $this->appointment_time,
-//     //     'status' => 'pending',
-
-//        $appointment = A::create([
-//         'user_id' => auth()->id(),
-//         'department_id' => $department->user_id,
-//         'staff_id' => $this->selectedStaffId,
-//         'purpose_of_appointment' => $this->purpose_of_appointment,
-//         'appointment_date' => $this->appointment_date,
-//         'appointment_time' => $this->appointment_time,
-//         'status' => 'pending',
-//     ]);
-
-
-//   $staff = Staff::find($this->selectedStaffId);
-//     if ($staff && $staff->email) {
-//         Mail::to($staff->email)->send(new StaffAppointmentNotification($appointment));
-//     }
-
-//     $this->reset([
-//         'department_id',
-//         'purpose_of_appointment',
-//         'schedule',
-//         'selectedStaffId',
-//         'showStaffList',
-//         'suggestedStaff'
-//     ]);
-
-//     session()->flash('success', 'Appointment submitted successfully! Waiting for approval.');
-// }
 
 
 
