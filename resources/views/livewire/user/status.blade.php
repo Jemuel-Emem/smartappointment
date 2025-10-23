@@ -195,7 +195,24 @@
         <div class="bg-white rounded-lg shadow-lg w-full max-w-sm sm:max-w-md p-6">
             <h2 class="text-lg font-bold mb-4">{{ $lang['modal_title'] }}</h2>
 
-            {{-- Date Picker --}}
+      @php
+    $department = \App\Models\Department::find(optional($selectedAppointment)->department_id);
+    $adminId = $department?->user_id;
+
+    $limitRecord = $adminId ? \App\Models\AppointmentLimit::where('user_id', $adminId)
+        ->whereDate('limit_date', $rescheduleDate)
+        ->first() : null;
+
+    $limitReached = false;
+    if ($limitRecord) {
+        $limit = $limitRecord->limit;
+        $count = \App\Models\Appointment::where('department_id', $adminId)
+            ->whereDate('appointment_date', $rescheduleDate)
+            ->count();
+        $limitReached = $count >= $limit;
+    }
+@endphp
+
             <div class="mb-4">
                 <label class="block text-sm font-medium text-gray-700">{{ $lang['date_label'] }}</label>
                 <input type="date" wire:model="rescheduleDate" class="w-full border rounded px-3 py-2 mt-1 text-sm sm:text-base">
@@ -207,50 +224,98 @@
             {{-- Time Picker with Validation --}}
             <div class="mb-4">
                 <label class="block text-sm font-medium text-gray-700">{{ $lang['time_label'] }}</label>
-                <select wire:model="rescheduleTime" class="w-full border rounded px-3 py-2 mt-1 text-sm sm:text-base">
-                    <option value="">{{ $lang['time_label'] }}</option>
+          <select wire:model="rescheduleTime" class="w-full border rounded px-3 py-2 mt-1 text-sm sm:text-base">
+    <option value="">{{ $lang['time_label'] }}</option>
 
-                    @php
-                        $morningSlots = ['08:30','09:00','09:30','10:00','10:30','11:00'];
-                        $afternoonSlots = ['13:00','13:30','14:00','14:30','15:00','15:30','16:00','16:30','17:00'];
-                        $times = array_merge($morningSlots, $afternoonSlots);
+ @php
+    $morningSlots = ['08:30','09:00','09:30','10:00','10:30','11:00'];
+    $afternoonSlots = ['13:00','13:30','14:00','14:30','15:00','15:30','16:00','16:30','17:00'];
+    $times = array_merge($morningSlots, $afternoonSlots);
 
-                        $now = \Carbon\Carbon::now();
-                    @endphp
+    $now = \Carbon\Carbon::now();
 
-                    @foreach ($times as $time)
-                        @php
-                            $timeCarbon = \Carbon\Carbon::createFromFormat('Y-m-d H:i', ($rescheduleDate ?? $now->toDateString()) . ' ' . $time);
-                            $isPastTime = ($rescheduleDate === $now->toDateString()) && $timeCarbon->lessThan($now);
 
-                            // Prevent double-booking
-                            $isBooked = false;
-                            if ($rescheduleDate && isset($selectedStaffId)) {
-                                $isBooked = \App\Models\Appointment::where('appointment_date', $rescheduleDate)
-                                    ->where('appointment_time', $time)
-                                    ->where('staff_id', $selectedStaffId)
-                                    ->where('status', 'approved')
-                                    ->exists();
-                            }
+    $staffId = optional($selectedAppointment)->staff_id ?? ($selectedStaffId ?? null);
 
-                            $isDisabled = $isPastTime || $isBooked;
-                        @endphp
 
-                        <option value="{{ $time }}" {{ $isDisabled ? 'disabled class=text-gray-400' : '' }}>
-                            {{ \Carbon\Carbon::createFromFormat('H:i', $time)->format('g:i A') }}
-                            @if($isBooked)
-                                ({{ $lang['not_available'] ?? 'Not Available' }})
-                            @endif
-                        </option>
-                    @endforeach
-                </select>
+    $limitReached = $limitReached ?? false;
+@endphp
+
+    {{-- @foreach ($times as $time)
+        @php
+            $timeCarbon = \Carbon\Carbon::createFromFormat('Y-m-d H:i', ($rescheduleDate ?? $now->toDateString()) . ' ' . $time);
+            $isPastTime = ($rescheduleDate === $now->toDateString()) && $timeCarbon->lessThan($now);
+
+            // Prevent double-booking
+            $isBooked = false;
+            if ($rescheduleDate && isset($selectedStaffId)) {
+                $isBooked = \App\Models\Appointment::where('appointment_date', $rescheduleDate)
+                    ->where('appointment_time', $time)
+                    ->where('staff_id', $selectedStaffId)
+                    ->where('status', 'approved')
+                    ->exists();
+            }
+
+            $isDisabled = $isPastTime || $isBooked;
+        @endphp
+
+        <!-- ✅ Updated line below -->
+        <option value="{{ $time }}" {{ ($isDisabled || $limitReached) ? 'disabled class=text-gray-400' : '' }}>
+            {{ \Carbon\Carbon::createFromFormat('H:i', $time)->format('g:i A') }}
+            @if($isBooked)
+                ({{ $lang['not_available'] ?? 'Not Available' }})
+            @elseif($limitReached)
+                ({{ $lang['limit_reached'] ?? 'Limit Reached' }})
+            @endif
+        </option>
+    @endforeach --}}
+
+  @foreach ($times as $time)
+    @php
+        // build a datetime using the chosen date (or today if unset)
+        $checkDate = $rescheduleDate ?? $now->toDateString();
+        $timeCarbon = \Carbon\Carbon::createFromFormat('Y-m-d H:i', $checkDate . ' ' . $time);
+        $isPastTime = ($rescheduleDate === $now->toDateString()) && $timeCarbon->lessThan($now);
+
+        // Prevent double-booking: look for an approved appointment for same staff/date/time
+        $isBooked = false;
+        if ($rescheduleDate && $staffId) {
+            $query = \App\Models\Appointment::where('appointment_date', $rescheduleDate)
+                ->where('appointment_time', $time)
+                ->where('staff_id', $staffId)
+                ->where('status', 'approved');
+
+            // exclude the appointment currently being rescheduled (important)
+            if (optional($selectedAppointment)->id) {
+                $query->where('id', '!=', $selectedAppointment->id);
+            }
+
+            $isBooked = $query->exists();
+        }
+
+        $isDisabled = $isPastTime || $isBooked || $limitReached;
+    @endphp
+
+    <option value="{{ $time }}" {{ $isDisabled ? 'disabled class=text-gray-400' : '' }}>
+        {{ \Carbon\Carbon::createFromFormat('H:i', $time)->format('g:i A') }}
+        @if($isBooked)
+
+        @elseif($limitReached)
+
+        @elseif($isPastTime)
+
+        @endif
+    </option>
+@endforeach
+
+</select>
 
                 @error('rescheduleTime')
                     <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                 @enderror
             </div>
 
-            {{-- Action Buttons --}}
+          
             <div class="flex flex-col sm:flex-row justify-end sm:space-x-2 space-y-2 sm:space-y-0">
                 <button wire:click="$set('showRescheduleModal', false)" class="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400 text-sm sm:text-base">
                     {{ $lang['modal_cancel'] }}

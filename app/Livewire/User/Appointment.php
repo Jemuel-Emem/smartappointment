@@ -94,31 +94,7 @@ class Appointment extends Component
     }
 
 public $remainingSlots;
-// public function loadAvailableSlots()
-// {
-//     if (!$this->department_id || !$this->appointment_date) {
-//         $this->remainingSlots = null;
-//         return;
-//     }
 
-//     $department = Department::find($this->department_id);
-//     if (!$department) {
-//         $this->remainingSlots = null;
-//         return;
-//     }
-
-//     $adminId = $department->user_id;
-//     $limitRecord = AppointmentLimit::where('user_id', $adminId)->first();
-//     $limit = $limitRecord ? $limitRecord->limit : 0;
-
-//     $count = A::where('department_id', $adminId)
-//         ->whereDate('appointment_date', $this->appointment_date)
-//         ->count();
-
-
-
-//     $this->remainingSlots = max($limit - $count, 0);
-// }
 public function loadAvailableSlots()
 {
     // Reset slots when no department or date

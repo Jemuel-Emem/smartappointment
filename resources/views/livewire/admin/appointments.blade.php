@@ -72,7 +72,7 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                     d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
             </svg>
-            Pending
+            pending
         </button>
 
         <button wire:click="$set('activeTab', 'approved')"
@@ -82,7 +82,7 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                     d="M5 13l4 4L19 7" />
             </svg>
-            Approved
+            approved
         </button>
 
         <button wire:click="$set('activeTab', 'history')"
@@ -92,7 +92,7 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                     d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
-            History
+            history
         </button>
     </div>
 
@@ -133,22 +133,22 @@
     @if($appointment->status === 'pending')
         <span class="flex items-center px-2 py-1 text-xs font-semibold bg-yellow-100 text-yellow-700 rounded-full">
             <span class="w-2.5 h-2.5 bg-yellow-500 rounded-full mr-2"></span>
-            Pending
+            pending
         </span>
     @elseif($appointment->status === 'approved')
         <span class="flex items-center px-2 py-1 text-xs font-semibold bg-green-100 text-green-700 rounded-full">
             <span class="w-2.5 h-2.5 bg-green-500 rounded-full mr-2"></span>
-            Approved
+            approved
         </span>
     @elseif($appointment->status === 'completed')
         <span class="flex items-center px-2 py-1 text-xs font-semibold bg-blue-100 text-blue-700 rounded-full">
             <span class="w-2.5 h-2.5 bg-blue-500 rounded-full mr-2"></span>
-            Completed
+            completed
         </span>
     @elseif($appointment->status === 'declined')
         <span class="flex items-center px-2 py-1 text-xs font-semibold bg-red-100 text-red-700 rounded-full">
             <span class="w-2.5 h-2.5 bg-red-500 rounded-full mr-2"></span>
-            Declined
+            declined
         </span>
     @else
         <span class="flex items-center px-2 py-1 text-xs font-semibold bg-gray-100 text-gray-600 rounded-full">
@@ -161,14 +161,14 @@
                             <td class="px-6 py-4 text-sm text-gray-700 flex gap-2">
                                 @if($appointment->status === 'pending')
                                     <button wire:click="approve({{ $appointment->id }})"
-                                        class="px-3 py-1 bg-green-500 text-white text-xs rounded hover:bg-green-600">Approve</button>
+                                        class="px-3 py-1 bg-green-500 text-white text-xs rounded hover:bg-green-600">approve</button>
                                     <button wire:click="decline({{ $appointment->id }})"
-                                        class="px-3 py-1 bg-red-500 text-white text-xs rounded hover:bg-red-600">Decline</button>
+                                        class="px-3 py-1 bg-red-500 text-white text-xs rounded hover:bg-red-600">decline</button>
                                 @elseif($appointment->status === 'approved')
                                     <button wire:click="complete({{ $appointment->id }})"
-                                        class="px-3 py-1 bg-blue-500 text-white text-xs rounded hover:bg-blue-600">Completed</button>
+                                        class="px-3 py-1 bg-blue-500 text-white text-xs rounded hover:bg-blue-600">completed</button>
                                     <button wire:click="openReschedule({{ $appointment->id }})"
-                                        class="px-3 py-1 bg-yellow-500 text-white text-xs rounded hover:bg-yellow-600">Reschedule</button>
+                                        class="px-3 py-1 bg-yellow-500 text-white text-xs rounded hover:bg-yellow-600">reschedule</button>
                                 @else
                                     <span class="text-gray-400 italic">No actions</span>
                                 @endif
@@ -182,31 +182,151 @@
         <p class="text-gray-500 italic">No {{ ucfirst($activeTab) }} appointments found.</p>
     @endif
 
-    {{-- Reschedule Modal --}}
-    @if($showRescheduleModal)
-        <div class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-            <div class="bg-white rounded-lg shadow-lg p-6 w-full max-w-md">
-                <h2 class="text-lg font-bold mb-4">Reschedule Appointment</h2>
+@if($showRescheduleModal)
+    <div class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+        <div class="bg-white rounded-lg shadow-lg p-6 w-full max-w-md">
+            <h2 class="text-lg font-bold mb-4">Reschedule Appointment</h2>
 
-                <div class="mb-4">
-                    <label class="block text-gray-700 mb-2">Date</label>
-                    <input type="date" wire:model="new_date" class="w-full border rounded px-3 py-2">
-                    @error('new_date') <p class="text-red-500 text-sm mt-1">{{ $message }}</p> @enderror
-                </div>
+          {{-- Date Picker --}}
+<div class="mb-4">
+    <label class="block text-gray-700 mb-2">Date</label>
+    <input
+        type="date"
+        id="rescheduleDate"
+        wire:model="new_date"
+        min="{{ now()->toDateString() }}"
+        class="w-full border rounded px-3 py-2"
+    >
+    @error('new_date')
+        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+    @enderror
+</div>
 
-                <div class="mb-4">
-                    <label class="block text-gray-700 mb-2">Time</label>
-                    <input type="time" wire:model="new_time" class="w-full border rounded px-3 py-2">
-                    @error('new_time') <p class="text-red-500 text-sm mt-1">{{ $message }}</p> @enderror
-                </div>
 
-                <div class="flex justify-end gap-2">
-                    <button wire:click="$set('showRescheduleModal', false)"
-                        class="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400">Cancel</button>
-                    <button wire:click="saveReschedule"
-                        class="px-4 py-2 bg-yellow-500 text-white rounded hover:bg-yellow-600">Save Changes</button>
-                </div>
+
+
+
+@if($appointmentBeingRescheduled)
+    @php
+        $department = $appointmentBeingRescheduled->department;
+        $staffId = $appointmentBeingRescheduled->staff_id;
+    @endphp
+@endif
+
+            <div class="mb-4">
+                <label class="block text-gray-700 mb-2">Time</label>
+                <select wire:model="new_time" class="w-full border rounded px-3 py-2">
+                    <option value="">Select Time</option>
+
+                    @php
+                        $now = \Carbon\Carbon::now();
+                        $morningSlots = ['08:00','08:30','09:00','09:30','10:00','10:30','11:00'];
+                        $afternoonSlots = ['13:00','13:30','14:00','14:30','15:00','15:30','16:00','16:30'];
+                        $times = array_merge($morningSlots, $afternoonSlots);
+
+                        $limitRecord = null;
+
+                        if (isset($appointmentBeingRescheduled) && $appointmentBeingRescheduled) {
+                            $department = \App\Models\Department::find($appointmentBeingRescheduled->department_id);
+                            $adminUserId = optional($department)->user_id;
+
+                            if ($adminUserId && $new_date) {
+                                $limitRecord = \App\Models\AppointmentLimit::where('user_id', $adminUserId)
+                                    ->whereDate('limit_date', $new_date)
+                                    ->first();
+                            }
+                        }
+
+                        if ($limitRecord && $limitRecord->timeslot === 'morning') {
+                            $times = $morningSlots;
+                        } elseif ($limitRecord && $limitRecord->timeslot === 'afternoon') {
+                            $times = $afternoonSlots;
+                        }
+                    @endphp
+
+                 @foreach ($times as $time)
+    @php
+        $checkDate = $new_date ?? $now->toDateString();
+        $timeCarbon = \Carbon\Carbon::createFromFormat('Y-m-d H:i', $checkDate . ' ' . $time);
+        $isPastTime = ($new_date === $now->toDateString()) && $timeCarbon->lessThan($now);
+
+        $isBooked = false;
+        $limitReached = false;
+
+        $isBooked = false;
+if ($new_date && $staffId) {
+    $isBooked = \App\Models\Appointment::where('appointment_date', $new_date)
+        ->where('appointment_time', $time)
+        ->where('staff_id', $staffId)
+        ->where('status', 'approved')
+        ->where('id', '!=', $appointmentBeingRescheduled->id)
+        ->exists();
+}
+
+
+        if ($new_date && isset($appointmentBeingRescheduled)) {
+            $departmentId = $appointmentBeingRescheduled->department_id;
+            $staffId = $appointmentBeingRescheduled->staff_id;
+
+
+            $isBooked = \App\Models\Appointment::where('appointment_date', $new_date)
+                ->where('appointment_time', $time)
+                ->where('staff_id', $staffId)
+                ->where('status', 'approved')
+                ->where('id', '!=', $appointmentBeingRescheduled->id)
+                ->exists();
+
+
+            $adminUserId = optional(\App\Models\Department::find($departmentId))->user_id;
+            if ($adminUserId) {
+                $limitRecord = \App\Models\AppointmentLimit::where('user_id', $adminUserId)
+                    ->whereDate('limit_date', $new_date)
+                    ->first();
+
+                if ($limitRecord) {
+                    $limit = $limitRecord->limit;
+                    $currentCount = \App\Models\Appointment::where('department_id', $departmentId)
+                        ->whereDate('appointment_date', $new_date)
+                        ->whereIn('status', ['approved', 'pending'])
+                        ->count();
+
+                    $limitReached = $currentCount >= $limit;
+                }
+            }
+        }
+
+        $isDisabled = $isPastTime || $isBooked || $limitReached;
+    @endphp
+
+    <option value="{{ $time }}" {{ $isDisabled ? 'disabled class=text-gray-400' : '' }}>
+        {{ \Carbon\Carbon::createFromFormat('H:i', $time)->format('g:i A') }}
+        @if($isBooked)
+
+        @elseif($limitReached)
+
+        @elseif($isPastTime)
+
+        @endif
+    </option>
+@endforeach
+
+
+                </select>
+                @error('new_time')
+                    <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                @enderror
+            </div>
+
+            <div class="flex justify-end gap-2">
+                <button wire:click="$set('showRescheduleModal', false)"
+                    class="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400">Cancel</button>
+                <button wire:click="saveReschedule"
+                    class="px-4 py-2 bg-yellow-500 text-white rounded hover:bg-yellow-600">Save Changes</button>
             </div>
         </div>
-    @endif
+    </div>
+@endif
+
+
+
 </div>

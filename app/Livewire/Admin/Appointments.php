@@ -35,16 +35,30 @@ public function mount()
     $this->appointments = $appointments;
 }
 
+// public function openReschedule($id)
+// {
+//     $this->rescheduleAppointmentId = $id;
+//     $appointment = Appointment::find($id);
+
+//     $this->new_date = $appointment->appointment_date;
+//     $this->new_time = $appointment->appointment_time;
+
+//     $this->showRescheduleModal = true;
+// }
+
 public function openReschedule($id)
 {
     $this->rescheduleAppointmentId = $id;
+
     $appointment = Appointment::find($id);
+    if (!$appointment) return;
 
     $this->new_date = $appointment->appointment_date;
     $this->new_time = $appointment->appointment_time;
 
     $this->showRescheduleModal = true;
 }
+
 
 public function saveLimit()
 {
@@ -70,11 +84,21 @@ public function saveLimit()
 
 public function saveReschedule()
 {
-    $this->validate([
-        'new_date' => 'required|date|after_or_equal:today',
+  $this->validate([
+        'new_date' => [
+            'required',
+            'date',
+            'after_or_equal:today',
+            function ($attribute, $value, $fail) {
+                $dayOfWeek = Carbon::parse($value)->dayOfWeek;
+
+                if ($dayOfWeek == 0 || $dayOfWeek == 6) {
+                    $fail('Appointments are not available on weekends.');
+                }
+            },
+        ],
         'new_time' => 'required',
     ]);
-
   $appointment = Appointment::find($this->rescheduleAppointmentId);
 
     if (!$appointment) {
@@ -118,17 +142,20 @@ public function saveReschedule()
         new AppointmentStatusMail($appointment, 'rescheduled')
     );
 
-         $this->sendSMS(
-            $appointment->user->phone_number,
-            "Your appointment has been RESCHEDULED to {$this->new_date} at {$this->new_time}."
-        );
+    $formattedTime = Carbon::createFromFormat('H:i', $this->new_time)->format('g:i A');
 
-         if ($appointment->staff && $appointment->staff->phone_number) {
-        $this->sendSMS(
-            $appointment->staff->phone_number,
-            "Appointment with {$appointment->user->name} has been RESCHEDULED to {$this->new_date} at {$this->new_time}."
-        );
-    }
+$this->sendSMS(
+    $appointment->user->phone_number,
+    "Your appointment has been RESCHEDULED to {$this->new_date} at {$formattedTime}."
+);
+
+if ($appointment->staff && $appointment->staff->phone_number) {
+    $this->sendSMS(
+        $appointment->staff->phone_number,
+        "Appointment with {$appointment->user->name} has been RESCHEDULED to {$this->new_date} at {$formattedTime}."
+    );
+}
+
 
     $this->showRescheduleModal = false;
     $this->rescheduleAppointmentId = null;
@@ -221,17 +248,23 @@ $requirements = Requirement::where('department_id', $appointment->staff->departm
     );
 
 
+$formattedDate = Carbon::parse($appointment->appointment_date)->format('F j, Y');
+$formattedTime = Carbon::createFromFormat('H:i', $appointment->appointment_time)->format('g:i A');
+
+
+$this->sendSMS(
+    $appointment->user->phone_number,
+    "Your appointment on {$formattedDate} at {$formattedTime} has been APPROVED." .
+    $requirementsList
+);
+
+
+if ($appointment->staff && $appointment->staff->phone_number) {
     $this->sendSMS(
-        $appointment->user->phone_number,
-        "Your appointment on {$appointment->appointment_date} at {$appointment->appointment_time} has been APPROVED." .
-        $requirementsList
+        $appointment->staff->phone_number,
+        "New approved appointment: {$appointment->user->name} on {$formattedDate} at {$formattedTime}."
     );
 
-     if ($appointment->staff && $appointment->staff->phone_number) {
-        $this->sendSMS(
-            $appointment->staff->phone_number,
-            "New approved appointment: {$appointment->user->name} on {$appointment->appointment_date} at {$appointment->appointment_time}."
-        );
     }
     $this->refreshAppointments();
 }
@@ -246,17 +279,23 @@ $requirements = Requirement::where('department_id', $appointment->staff->departm
         new AppointmentStatusMail($appointment, 'declined')
     );
 
-      $this->sendSMS(
-            $appointment->user->phone_number,
-            "We’re sorry, but your appointment on {$appointment->appointment_date} at {$appointment->appointment_time} has been DECLINED."
-        );
+   $formattedDate = Carbon::parse($appointment->appointment_date)->format('F j, Y');
+$formattedTime = Carbon::createFromFormat('H:i', $appointment->appointment_time)->format('g:i A');
 
-          if ($appointment->staff && $appointment->staff->phone_number) {
-        $this->sendSMS(
-            $appointment->staff->phone_number,
-            "Appointment with {$appointment->user->name} on {$appointment->appointment_date} at {$appointment->appointment_time} has been DECLINED."
-        );
-    }
+
+$this->sendSMS(
+    $appointment->user->phone_number,
+    "We’re sorry, but your appointment on {$formattedDate} at {$formattedTime} has been DECLINED."
+);
+
+
+if ($appointment->staff && $appointment->staff->phone_number) {
+    $this->sendSMS(
+        $appointment->staff->phone_number,
+        "Appointment with {$appointment->user->name} on {$formattedDate} at {$formattedTime} has been DECLINED."
+    );
+}
+
         $this->refreshAppointments();
     }
 
@@ -292,9 +331,24 @@ $requirements = Requirement::where('department_id', $appointment->staff->departm
 
         return $output;
     }
-    public function render()
-    {
-        return view('livewire.admin.appointments',
-    ['currentLimit' => $this->limit]);
+
+
+public function getAppointmentBeingRescheduled()
+{
+    if (! $this->rescheduleAppointmentId) {
+        return null;
     }
+
+    return Appointment::with('staff', 'department')
+        ->find($this->rescheduleAppointmentId);
+}
+
+ public function render()
+{
+    return view('livewire.admin.appointments', [
+        'currentLimit' => $this->limit,
+        'appointmentBeingRescheduled' => $this->getAppointmentBeingRescheduled(),
+    ]);
+}
+
 }
