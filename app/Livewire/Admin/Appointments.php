@@ -35,17 +35,6 @@ public function mount()
     $this->appointments = $appointments;
 }
 
-// public function openReschedule($id)
-// {
-//     $this->rescheduleAppointmentId = $id;
-//     $appointment = Appointment::find($id);
-
-//     $this->new_date = $appointment->appointment_date;
-//     $this->new_time = $appointment->appointment_time;
-
-//     $this->showRescheduleModal = true;
-// }
-
 public function openReschedule($id)
 {
     $this->rescheduleAppointmentId = $id;
@@ -106,7 +95,7 @@ public function saveReschedule()
         return;
     }
 
-    // Combine into full datetime
+
     $slot = Carbon::createFromFormat(
         'Y-m-d H:i',
         $this->new_date . ' ' . $this->new_time
@@ -175,68 +164,30 @@ public function complete($id)
 }
 
 
-    // public function approve($id)
-    // {
-    //   $appointment = Appointment::find($id);
-    // $appointment->update(['status' => 'approved']);
-
-
-    // Mail::to($appointment->user->email)->send(
-    //     new AppointmentStatusMail($appointment, 'approved')
-    // );
-
-    //   $this->sendSMS(
-    //         $appointment->user->phone_number,
-    //         "Your appointment on {$appointment->appointment_date} at {$appointment->appointment_time} has been APPROVED."
-    //     );
-
-    //     $this->refreshAppointments();
-    // }
-
-
-//     public function approve($id)
-// {
-//      $appointment = Appointment::find($id);
-//      $appointment->update(['status' => 'approved']);
-
-
-//     $requirements = Requirement::where('department_id', $appointment->department->id)
-//         ->pluck('name')
-//         ->toArray();
-
-
-//     $requirementsList = !empty($requirements)
-//         ? "\nRequirements:\n- " . implode("\n- ", $requirements)
-//         : "\n(No additional requirements for this appointment.)";
-
-//         dd($requirementsList);
-
-
-//     Mail::to($appointment->user->email)->send(
-//         new AppointmentStatusMail($appointment, 'approved', $requirementsList) // <-- pass requirements
-//     );
-
-
-//     $this->sendSMS(
-//         $appointment->user->phone_number,
-//         "Your appointment on {$appointment->appointment_date} at {$appointment->appointment_time} has been APPROVED." .
-//         $requirementsList
-//     );
-
-//     $this->refreshAppointments();
-// }
-
-
 public function approve($id)
 {
-    $appointment = Appointment::with('staff')->find($id);
+
+    $appointment = Appointment::with(['user', 'staff'])->find($id);
+
+    if (!$appointment) {
+        session()->flash('error', 'Appointment not found.');
+        return;
+    }
+
     $appointment->update(['status' => 'approved']);
 
-$requirements = Requirement::where('department_id', $appointment->staff->department_id)
-    ->where('service', $appointment->staff->service_type)
-    ->pluck('name')
-    ->toArray();
 
+    if ($appointment->staff) {
+        $requirements = Requirement::where('department_id', $appointment->staff->department_id)
+            ->where('service', $appointment->staff->service_type)
+            ->pluck('name')
+            ->toArray();
+    } else {
+
+        $requirements = Requirement::where('department_id', $appointment->department_id)
+            ->pluck('name')
+            ->toArray();
+    }
 
     $requirementsList = !empty($requirements)
         ? "\nRequirements:\n- " . implode("\n- ", $requirements)
@@ -248,26 +199,69 @@ $requirements = Requirement::where('department_id', $appointment->staff->departm
     );
 
 
-$formattedDate = Carbon::parse($appointment->appointment_date)->format('F j, Y');
-$formattedTime = Carbon::createFromFormat('H:i', $appointment->appointment_time)->format('g:i A');
+    $formattedDate = Carbon::parse($appointment->appointment_date)->format('F j, Y');
+$formattedTime = Carbon::parse($this->new_time)->format('g:i A');
+$formattedTime = Carbon::parse($appointment->appointment_time)->format('g:i A');
 
 
-$this->sendSMS(
-    $appointment->user->phone_number,
-    "Your appointment on {$formattedDate} at {$formattedTime} has been APPROVED." .
-    $requirementsList
-);
 
-
-if ($appointment->staff && $appointment->staff->phone_number) {
     $this->sendSMS(
-        $appointment->staff->phone_number,
-        "New approved appointment: {$appointment->user->name} on {$formattedDate} at {$formattedTime}."
+        $appointment->user->phone_number,
+        "Your appointment on {$formattedDate} at {$formattedTime} has been APPROVED." . $requirementsList
     );
 
+
+    if ($appointment->staff && $appointment->staff->phone_number) {
+        $this->sendSMS(
+            $appointment->staff->phone_number,
+            "New approved appointment: {$appointment->user->firstname} {$appointment->user->lastname} on {$formattedDate} at {$formattedTime}."
+        );
     }
+
     $this->refreshAppointments();
 }
+
+// public function approve($id)
+// {
+//     $appointment = Appointment::with('staff')->find($id);
+//     $appointment->update(['status' => 'approved']);
+
+// $requirements = Requirement::where('department_id', $appointment->staff->department_id)
+//     ->where('service', $appointment->staff->service_type)
+//     ->pluck('name')
+//     ->toArray();
+
+
+//     $requirementsList = !empty($requirements)
+//         ? "\nRequirements:\n- " . implode("\n- ", $requirements)
+//         : "\n(No additional requirements for this appointment.)";
+
+
+//     Mail::to($appointment->user->email)->send(
+//         new AppointmentStatusMail($appointment, 'approved', $requirementsList)
+//     );
+
+
+// $formattedDate = Carbon::parse($appointment->appointment_date)->format('F j, Y');
+// $formattedTime = Carbon::createFromFormat('H:i', $appointment->appointment_time)->format('g:i A');
+
+
+// $this->sendSMS(
+//     $appointment->user->phone_number,
+//     "Your appointment on {$formattedDate} at {$formattedTime} has been APPROVED." .
+//     $requirementsList
+// );
+
+
+// if ($appointment->staff && $appointment->staff->phone_number) {
+//     $this->sendSMS(
+//         $appointment->staff->phone_number,
+//         "New approved appointment: {$appointment->user->name} on {$formattedDate} at {$formattedTime}."
+//     );
+
+//     }
+//     $this->refreshAppointments();
+// }
 
     public function decline($id)
     {
@@ -350,5 +344,7 @@ public function getAppointmentBeingRescheduled()
         'appointmentBeingRescheduled' => $this->getAppointmentBeingRescheduled(),
     ]);
 }
+
+
 
 }
