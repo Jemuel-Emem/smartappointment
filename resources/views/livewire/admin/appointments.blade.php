@@ -161,14 +161,14 @@
                             <td class="px-6 py-4 text-sm text-gray-700 flex gap-2">
                                 @if($appointment->status === 'pending')
                                     <button wire:click="approve({{ $appointment->id }})"
-                                        class="px-3 py-1 bg-green-500 text-white text-xs rounded hover:bg-green-600">approve</button>
+                                        class="px-3 py-1 bg-green-500 text-white text-xs rounded hover:bg-green-600">Approve</button>
                                     <button wire:click="decline({{ $appointment->id }})"
-                                        class="px-3 py-1 bg-red-500 text-white text-xs rounded hover:bg-red-600">decline</button>
+                                        class="px-3 py-1 bg-red-500 text-white text-xs rounded hover:bg-red-600">Decline</button>
                                 @elseif($appointment->status === 'approved')
                                     <button wire:click="complete({{ $appointment->id }})"
-                                        class="px-3 py-1 bg-blue-500 text-white text-xs rounded hover:bg-blue-600">completed</button>
+                                        class="px-3 py-1 bg-blue-500 text-white text-xs rounded hover:bg-blue-600">Completed</button>
                                     <button wire:click="openReschedule({{ $appointment->id }})"
-                                        class="px-3 py-1 bg-yellow-500 text-white text-xs rounded hover:bg-yellow-600">reschedule</button>
+                                        class="px-3 py-1 bg-yellow-500 text-white text-xs rounded hover:bg-yellow-600">Reschedule</button>
                                 @else
                                     <span class="text-gray-400 italic">No actions</span>
                                 @endif

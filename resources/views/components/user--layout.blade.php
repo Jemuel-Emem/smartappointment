@@ -51,32 +51,36 @@
         $user = Auth::user();
         $lang = $user->language ?? 'English';
 
-        $translations = [
-            'English' => [
-                'home' => 'Home',
-                'appointment' => 'Appointment',
-                'status_history' => 'Status/History',
-                'profile' => 'Profile',
-                'logout' => 'Logout',
-                'system_name' => 'SMART APPOINTMENT',
-            ],
-            'Tagalog' => [
-                'home' => 'Bahay',
-                'appointment' => 'Appointment',
-                'status_history' => 'Katayuan/Kasaysayan',
-                'profile' => 'Profile',
-                'logout' => 'Mag-logout',
-                'system_name' => 'SMART APPOINTMENT',
-            ],
-            'Bisaya' => [
-                'home' => 'Balay',
-                'appointment' => 'Appointment',
-                'status_history' => 'Status/Kasaysayan',
-                'profile' => 'Profile',
-                'logout' => 'Pag-logout',
-                'system_name' => 'SMART APPOINTMENT',
-            ],
-        ];
+     $translations = [
+    'English' => [
+        'home' => 'Home',
+        'appointment' => 'Appointment',
+        'status_history' => 'Status/History',
+        'announcement' => 'Announcement',
+        'profile' => 'Profile',
+        'logout' => 'Logout',
+        'system_name' => 'SMART APPOINTMENT',
+    ],
+    'Tagalog' => [
+        'home' => 'Bahay',
+        'appointment' => 'Appointment',
+        'status_history' => 'Katayuan/Kasaysayan',
+        'announcement' => 'Anunsyo',
+        'profile' => 'Profile',
+        'logout' => 'Mag-logout',
+        'system_name' => 'SMART APPOINTMENT',
+    ],
+    'Bisaya' => [
+        'home' => 'Balay',
+        'appointment' => 'Appointment',
+        'status_history' => 'Status/Kasaysayan',
+        'announcement' => 'Pahibalo',
+        'profile' => 'Profile',
+        'logout' => 'Pag-logout',
+        'system_name' => 'SMART APPOINTMENT',
+    ],
+];
+
 
         $t = $translations[$lang] ?? $translations['English'];
     @endphp
@@ -139,12 +143,12 @@
                     </a>
                 </li>
 
-                      <li>
-                    <a href="{{route('user.announcement')}}" class="flex items-center p-2 rounded-lg hover:text-blue-500">
+                 <li>
+    <a href="{{ route('user.announcement') }}" class="relative block py-2 px-3 text-white uppercase font-bold nav-link hover:text-blue-500">
+        <span class="text-white uppercase">{{ $t['announcement'] }}</span>
+    </a>
+</li>
 
-                        <span class=" text-white uppercase">Announcement</span>
-                    </a>
-            </li>
                 <li>
                     <a href="{{ route('user.profile') }}"
                        class="block py-2 px-3 text-white uppercase font-bold nav-link hover:text-blue-500">

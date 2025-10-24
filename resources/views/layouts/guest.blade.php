@@ -20,7 +20,7 @@
         <!-- Logo + Title -->
         <div class="flex items-center gap-3 mb-6">
             <img class="w-16 h-16" src="{{ asset('images/schedule.png') }}" alt="App Logo">
-            <h1 class="text-3xl font-bold text-blue-700">SmartAppoint</h1>
+            <h1 class="text-3xl font-bold text-blue-700">SmartAppointment</h1>
         </div>
 
         <!-- Card Container -->

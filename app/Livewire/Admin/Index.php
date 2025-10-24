@@ -14,9 +14,9 @@ class Index extends Component
 
     public function mount()
     {
-        $adminId = Auth::id(); // because appointments.department_id = departments.user_id
+        $adminId = Auth::id();
 
-        // 📅 Today's total appointments
+
         $this->todayAppointments = Appointment::where('department_id', $adminId)
             ->whereDate('appointment_date', today())
             ->count();
