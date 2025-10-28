@@ -274,7 +274,7 @@ $formattedTime = Carbon::parse($appointment->appointment_time)->format('g:i A');
     );
 
    $formattedDate = Carbon::parse($appointment->appointment_date)->format('F j, Y');
-$formattedTime = Carbon::createFromFormat('H:i', $appointment->appointment_time)->format('g:i A');
+$formattedTime = Carbon::parse($appointment->appointment_time)->format('g:i A');
 
 
 $this->sendSMS(
