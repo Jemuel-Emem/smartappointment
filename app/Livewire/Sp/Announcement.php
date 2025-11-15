@@ -34,6 +34,7 @@ class Announcement extends Component
 
         $this->reset(['title', 'message', 'audience', 'department_id']);
         session()->flash('success', 'Announcement created successfully!');
+          return redirect()->route('sp.confirmation');
     }
 
     public function render()

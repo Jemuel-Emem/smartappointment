@@ -99,7 +99,7 @@
     <aside id="sidebar-multi-level-sidebar" class="sidebar fixed top-0 left-0 z-40 w-64 h-screen transition-transform sm:translate-x-0  bg-blue-700" aria-label="Sidebar">
         <div class="h-full px-3 py-4 overflow-y-auto">
             <div class="text-center flex flex-col items-center">
-                <img src="{{asset('images/schedule.png')}}" alt="Admin">
+                <img src="{{asset('images/30e70ca8-ac22-4e6e-a214-bd0fda3bef73-removebg-preview.png')}}" alt="Admin">
                 <div class="font-bold   text-white">SMART APPOINTMENT</div>
             </div>
             <ul class="space-y-2 font-medium mt-4">

@@ -169,14 +169,14 @@ new #[Layout('layouts.guest')] class extends Component
         <div class="grid grid-cols-2 gap-4">
             <!-- Firstname -->
             <div>
-                <x-input-label for="firstname" :value="__('Firstname')" />
+                <x-input-label for="firstname" :value="__('*Firstname')" />
                 <x-text-input wire:model="firstname" id="firstname" class="block mt-1 w-full" type="text" required autofocus autocomplete="firstname" />
                 <x-input-error :messages="$errors->get('firstname')" class="mt-2" />
             </div>
 
             <!-- Lastname -->
             <div>
-                <x-input-label for="lastname" :value="__('Lastname')" />
+                <x-input-label for="lastname" :value="__('*Lastname')" />
                 <x-text-input wire:model="lastname" id="lastname" class="block mt-1 w-full" type="text" required autocomplete="lastname" />
                 <x-input-error :messages="$errors->get('lastname')" class="mt-2" />
             </div>
@@ -190,7 +190,7 @@ new #[Layout('layouts.guest')] class extends Component
 
             <!-- Phone Number -->
 <div>
-    <x-input-label for="phone_number" :value="__('Phone Number')" />
+    <x-input-label for="phone_number" :value="__('*Phone Number')" />
     <x-text-input
         wire:model="phone_number"
         id="phone_number"
@@ -208,23 +208,65 @@ new #[Layout('layouts.guest')] class extends Component
 
 
 
-            <!-- Barangay -->
-            <div>
-                <x-input-label for="barangay" :value="__('Barangay')" />
-                <x-text-input wire:model="barangay" id="barangay" class="block mt-1 w-full" type="text" required autocomplete="barangay" />
-                <x-input-error :messages="$errors->get('barangay')" class="mt-2" />
-            </div>
+        <!-- Barangay -->
+<div>
+    <x-input-label for="barangay" :value="__('*Barangay')" />
+
+    <select id="barangay" wire:model="barangay"
+        class="block mt-1 w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm"
+        required>
+        <option value="">-- Select Barangay --</option>
+        <option value="Anonang">Anonang</option>
+        <option value="Asinan">Asinan</option>
+        <option value="Bago">Bago</option>
+        <option value="Baluarte">Baluarte</option>
+        <option value="Bantuan">Bantuan</option>
+        <option value="Bato">Bato</option>
+        <option value="Bonot-bonot">Bonot-bonot</option>
+        <option value="Bugaong">Bugaong</option>
+        <option value="Cambuhat">Cambuhat</option>
+        <option value="Cambus-oc">Cambus-oc</option>
+        <option value="Cangawa">Cangawa</option>
+        <option value="Cantomugcad">Cantomugcad</option>
+        <option value="Cantores">Cantores</option>
+        <option value="Cantuba">Cantuba</option>
+        <option value="Catigbian">Catigbian</option>
+        <option value="Cawag">Cawag</option>
+        <option value="Cruz">Cruz</option>
+        <option value="Dait">Dait</option>
+        <option value="Eastern Cabul-an">Eastern Cabul-an</option>
+        <option value="Hunan">Hunan</option>
+        <option value="Lapacan Norte">Lapacan Norte</option>
+        <option value="Lapacan Sur">Lapacan Sur</option>
+        <option value="Lubang">Lubang</option>
+        <option value="Lusong (Plateau)">Lusong (Plateau)</option>
+        <option value="Magkaya">Magkaya</option>
+        <option value="Merryland">Merryland</option>
+        <option value="Nueva Granada">Nueva Granada</option>
+        <option value="Nueva Montana">Nueva Montana</option>
+        <option value="Overland">Overland</option>
+        <option value="Panghagban">Panghagban</option>
+        <option value="Poblacion">Poblacion</option>
+        <option value="Puting Bato">Puting Bato</option>
+        <option value="Rufo Hill">Rufo Hill</option>
+        <option value="Sweetland">Sweetland</option>
+        <option value="Western Cabul-an">Western Cabul-an</option>
+    </select>
+
+    <x-input-error :messages="$errors->get('barangay')" class="mt-2" />
+</div>
+
 
             <!-- Sition -->
             <div>
-                <x-input-label for="sition" :value="__('Sition (Optional)')" />
+                <x-input-label for="sition" :value="__('Sitio (Optional)')" />
                 <x-text-input wire:model="sition" id="sition" class="block mt-1 w-full" type="text" autocomplete="sition" />
                 <x-input-error :messages="$errors->get('sition')" class="mt-2" />
             </div>
 
             <!-- Language -->
             <div>
-                <x-input-label for="language" :value="__('Language')" />
+                <x-input-label for="language" :value="__('*Language')" />
                 <select wire:model="language" id="language" class="block mt-1 w-full" required>
                     <option value="">-- Select Language --</option>
                     <option value="English">English</option>
@@ -236,14 +278,14 @@ new #[Layout('layouts.guest')] class extends Component
 
             <!-- Email -->
             <div>
-                <x-input-label for="email" :value="__('Email')" />
+                <x-input-label for="email" :value="__('*Email')" />
                 <x-text-input wire:model="email" id="email" class="block mt-1 w-full" type="email" required autocomplete="username" />
                 <x-input-error :messages="$errors->get('email')" class="mt-2" />
             </div>
 
        <!-- Password -->
 <div x-data="{ show: false }">
-    <x-input-label for="password" :value="__('Password')" />
+    <x-input-label for="password" :value="__('*Password')" />
     <div class="relative">
         <input :type="show ? 'text' : 'password'"
                wire:model="password"
@@ -277,7 +319,7 @@ new #[Layout('layouts.guest')] class extends Component
 
 <!-- Confirm Password -->
 <div x-data="{ show: false }">
-    <x-input-label for="password_confirmation" :value="__('Confirm Password')" />
+    <x-input-label for="password_confirmation" :value="__('*Confirm Password')" />
     <div class="relative">
         <input :type="show ? 'text' : 'password'"
                wire:model="password_confirmation"

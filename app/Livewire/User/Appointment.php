@@ -28,6 +28,12 @@ class Appointment extends Component
     public $appointment_time;
     public $availableSlots = [];
 
+public $showCommentModal = false;
+public $selectedStaffName = '';
+public $comments = [];
+
+
+
     public $language = 'en';
 
     protected $listeners = ['appointmentDateSelected' => 'setAppointmentDate'];
@@ -94,6 +100,22 @@ class Appointment extends Component
     }
 
 public $remainingSlots;
+public function showComments($staffId)
+{
+    $staff = \App\Models\Staff::find($staffId);
+    if (!$staff) return;
+
+    $this->selectedStaffName = $staff->name;
+
+
+    $this->comments = \App\Models\Staff_Rating::with('user')
+        ->where('staff_id', $staffId)
+        ->whereNotNull('comment')
+        ->latest()
+        ->get();
+
+    $this->showCommentModal = true;
+}
 
 public function loadAvailableSlots()
 {
@@ -339,7 +361,7 @@ flash()->warning('You cannot book an appointment in the past. Please choose a fu
 
 
        flash()->success('Appointment submitted successfully! Waiting for approval.');
-
+       return redirect()->route('user.status');
 }
 
 

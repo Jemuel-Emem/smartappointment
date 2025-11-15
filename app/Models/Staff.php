@@ -37,6 +37,10 @@ public function getAverageRatingAttribute()
         return $this->hasMany(Appointment::class);
     }
 
+public function comments()
+{
+    return $this->hasMany(\App\Models\Staff_Rating::class);
+}
 
 
 }

@@ -101,7 +101,7 @@
     <div class="w-screen flex flex-wrap items-center justify-around mx-auto p-4">
         <!-- Logo -->
         <a href="/" class="flex items-center space-x-3 rtl:space-x-reverse">
-            <img src="{{ asset('images/schedule.png') }}" alt="Logo" class="w-14 h-14 border-2 rounded-full">
+            <img src="{{ asset('images/30e70ca8-ac22-4e6e-a214-bd0fda3bef73-removebg-preview.png') }}" alt="Logo" class="w-14 h-14 border-2 rounded-full">
             <label class="font-black text-white text-xl md:text-2xl nav-logo">{{ $t['system_name'] }}</label>
         </a>
 

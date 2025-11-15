@@ -1,23 +1,5 @@
 <div class="max-w-7xl mt-2 mx-auto bg-gradient-to-br from-blue-50 to-white p-8 rounded-2xl shadow-lg border border-blue-100">
 
-    {{-- Language Switcher --}}
-    {{-- <div class="mb-4 flex justify-end gap-2">
-        <button type="button" wire:click="$set('language', 'en')"
-            class="px-4 py-2 rounded-lg border
-            {{ $language === 'en' ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-gray-700 border-gray-300' }}">
-            English
-        </button>
-        <button type="button" wire:click="$set('language', 'tl')"
-            class="px-4 py-2 rounded-lg border
-            {{ $language === 'tl' ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-gray-700 border-gray-300' }}">
-            Tagalog
-        </button>
-        <button type="button" wire:click="$set('language', 'bs')"
-            class="px-4 py-2 rounded-lg border
-            {{ $language === 'bs' ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-gray-700 border-gray-300' }}">
-            Bisaya
-        </button>
-    </div> --}}
 
     <h2 class="text-3xl font-bold mb-6 text-center text-blue-700">
     {{ $translations[$language]['book_title'] }}
@@ -85,7 +67,13 @@
 
 
 </p>
-
+    <div class="mt-4">
+                        <button
+                            wire:click="showComments({{ $staff->id }})"
+                            class="px-4 py-1.5  text-blue-500 text-sm font-semibold ">
+                            View Comments
+                        </button>
+                    </div>
                         <div class="mt-3 flex items-center justify-between">
                           <div class="flex items-center">
 @php
@@ -144,27 +132,6 @@
         <label class="block text-gray-700 font-semibold mb-2">{{ $translations[$language]['appointment_time'] }}</label>
     <select wire:model="appointment_time" class="w-full border border-gray-300 rounded-lg px-4 py-2">
     <option value="">{{ $translations[$language]['select_time'] }}</option>
-
-  {{-- @php
-    use Carbon\Carbon;
-
-    $times = [
-        '08:00','08:30', '09:00', '09:30', '10:00', '10:30', '11:00',
-        '13:00', '13:30', '14:00', '14:30', '15:00', '15:30',
-        '16:00', '16:30', '17:00'
-    ];
-
-    $now = Carbon::now();
-@endphp
-
-@foreach ($times as $time)
-    @php
-
-        $timeCarbon = Carbon::createFromFormat('Y-m-d H:i', $now->toDateString() . ' ' . $time);
-
-
-        $isDisabled = ($appointment_date === $now->toDateString()) && $timeCarbon->lessThan($now);
-    @endphp --}}
 
 
 
@@ -270,4 +237,34 @@ $now = Carbon::now();
 });
 
     </script>
+
+
+@if($showCommentModal)
+<div class="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50 z-50">
+    <div class="bg-white rounded-lg shadow-lg w-full max-w-lg p-6">
+        <h3 class="text-xl font-bold text-blue-700 mb-4">Comments for {{ $selectedStaffName }}</h3>
+
+        @if(count($comments) > 0)
+            <div class="space-y-3 max-h-64 overflow-y-auto">
+                @foreach($comments as $comment)
+                    <div class="border-b border-gray-200 pb-2">
+                        <p class="text-gray-800">{{ $comment->comment }}</p>
+                        <p class="text-xs text-gray-500 mt-1">⭐ {{ $comment->rating }}/5 — {{ $comment->user->firstname ?? 'Anonymous' }}, {{ $comment->created_at->format('M d, Y') }}</p>
+                    </div>
+                @endforeach
+            </div>
+        @else
+            <p class="text-gray-500 text-center">No comments available for this staff.</p>
+        @endif
+
+        <div class="mt-5 flex justify-end">
+            <button wire:click="$set('showCommentModal', false)"
+                class="px-4 py-2 bg-gray-300 hover:bg-gray-400 text-gray-700 rounded-md">
+                Close
+            </button>
+        </div>
+    </div>
+</div>
+@endif
+
 </div>

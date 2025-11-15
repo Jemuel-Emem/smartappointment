@@ -78,6 +78,10 @@ Route::prefix('SuperAdmin')->middleware(['auth', SuperAdmin::class])->group(func
         return view('sp.announcement');
     })->name('sp.announcement');
 
+      Route::get('/sp.confirmation', function () {
+        return view('sp.confiramtion');
+    })->name('sp.confirmation');
+
 });
 
 

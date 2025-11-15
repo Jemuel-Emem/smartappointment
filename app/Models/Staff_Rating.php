@@ -22,4 +22,6 @@ class Staff_Rating extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+
 }

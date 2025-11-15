@@ -19,7 +19,7 @@
     <div class="min-h-screen flex flex-col justify-center items-center px-4">
         <!-- Logo + Title -->
         <div class="flex items-center gap-3 mb-6">
-            <img class="w-16 h-16" src="{{ asset('images/schedule.png') }}" alt="App Logo">
+            <img class="w-16 h-16" src="{{ asset('images/30e70ca8-ac22-4e6e-a214-bd0fda3bef73-removebg-preview.png') }}" alt="App Logo">
             <h1 class="text-3xl font-bold text-blue-700">SmartAppointment</h1>
         </div>
 
